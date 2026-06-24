@@ -23,11 +23,19 @@ const formatProduct = (product) => {
     price,
     salePrice,
     image,
+    hoverImage:
+      product.images && product.images[1] && product.images[1].url
+        ? product.images[1].url
+        : image,
+    stock: typeof product.stock === "number" ? product.stock : 0,
+    inStock: typeof product.stock === "number" ? product.stock > 0 : true,
+    isFeatured: Boolean(product.isFeatured),
     isNew:
       product.createdAt &&
       Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000,
     isSale: salePrice !== null && salePrice < price,
-    badge: salePrice ? "SALE" : null,
+    badge: salePrice ? "SALE" : product.isFeatured ? "NEW" : null,
+    createdAt: product.createdAt || new Date(),
   };
 };
 
@@ -180,6 +188,102 @@ const mockFeaturedCategories = [
     size: "medium",
   },
 ];
+
+const shopCategories = [
+  { name: "Abayas", slug: "abayas" },
+  { name: "Dresses", slug: "dresses" },
+  { name: "Hijabs", slug: "hijabs" },
+  { name: "Ready To Wear", slug: "ready-to-wear" },
+  { name: "Party Wear", slug: "party-wear" },
+  { name: "Luxury Collection", slug: "luxury-collection" },
+];
+
+const mockShopProducts = [
+  ...mockFeaturedProducts,
+  {
+    id: "9",
+    name: "Noor Pleated Abaya",
+    slug: "noor-pleated-abaya",
+    category: "Abayas",
+    price: 6999,
+    salePrice: 5499,
+    image:
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=700&h=900&fit=crop",
+    hoverImage:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=900&fit=crop",
+    stock: 8,
+    inStock: true,
+    isFeatured: true,
+    isNew: false,
+    isSale: true,
+    badge: "SALE",
+    createdAt: "2026-06-12",
+  },
+  {
+    id: "10",
+    name: "Ivory Chiffon Hijab",
+    slug: "ivory-chiffon-hijab",
+    category: "Hijabs",
+    price: 999,
+    salePrice: null,
+    image:
+      "https://images.unsplash.com/photo-1585487000160-6eacfbeb0d88?w=700&h=900&fit=crop",
+    hoverImage:
+      "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=700&h=900&fit=crop",
+    stock: 0,
+    inStock: false,
+    isFeatured: false,
+    isNew: true,
+    isSale: false,
+    badge: "NEW",
+    createdAt: "2026-06-18",
+  },
+  {
+    id: "11",
+    name: "Amani Satin Co-ord Set",
+    slug: "amani-satin-coord-set",
+    category: "Ready To Wear",
+    price: 4499,
+    salePrice: null,
+    image:
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=700&h=900&fit=crop",
+    hoverImage:
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=700&h=900&fit=crop",
+    stock: 14,
+    inStock: true,
+    isFeatured: true,
+    isNew: true,
+    isSale: false,
+    badge: "NEW",
+    createdAt: "2026-06-20",
+  },
+  {
+    id: "12",
+    name: "Zarina Beaded Evening Dress",
+    slug: "zarina-beaded-evening-dress",
+    category: "Party Wear",
+    price: 11999,
+    salePrice: 8999,
+    image:
+      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=700&h=900&fit=crop",
+    hoverImage:
+      "https://images.unsplash.com/photo-1539008835657-9e8e96875907?w=700&h=900&fit=crop",
+    stock: 5,
+    inStock: true,
+    isFeatured: true,
+    isNew: false,
+    isSale: true,
+    badge: "SALE",
+    createdAt: "2026-05-28",
+  },
+].map((product, index) => ({
+  stock: index % 5 === 0 ? 0 : 10 + index,
+  inStock: index % 5 !== 0,
+  isFeatured: index % 3 === 0 || Boolean(product.isFeatured),
+  hoverImage: product.hoverImage || product.image,
+  createdAt: product.createdAt || new Date(Date.now() - index * 86400000),
+  ...product,
+}));
 
 const mockInstagramPosts = [
   {
@@ -347,6 +451,7 @@ exports.getHome = async (req, res) => {
       instagramPosts: mockInstagramPosts,
       blogPosts: mockBlogPosts,
       storeSettings,
+      pageName: "home",
       pageTitle: "Zayrah Couture | Elegant Modest Fashion",
     });
   } catch (error) {
@@ -361,7 +466,58 @@ exports.getHome = async (req, res) => {
       instagramPosts: mockInstagramPosts,
       blogPosts: mockBlogPosts,
       storeSettings,
+      pageName: "home",
       pageTitle: "Zayrah Couture | Elegant Modest Fashion",
+    });
+  }
+};
+
+exports.getShop = async (req, res) => {
+  try {
+    const dbProducts = await Product.find({ isListed: true })
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const products =
+      dbProducts.length > 0 ? dbProducts.map(formatProduct) : mockShopProducts;
+
+    const dbCategories = await Category.find({ isListed: true })
+      .sort({ name: 1 })
+      .lean();
+
+    const categories =
+      dbCategories.length > 0
+        ? dbCategories.map((cat) => ({
+            name: cat.name,
+            slug: cat.slug,
+            description: cat.description,
+          }))
+        : shopCategories;
+
+    res.render("user/shop", {
+      products,
+      categories,
+      featuredProducts: products.filter((product) => product.isFeatured).slice(0, 8),
+      storeSettings,
+      pageName: "shop",
+      pageTitle: "Shop Collection | Zayrah Couture",
+      pageCss: "/css/user/shop.css",
+      pageJs: "/js/user/shop.js",
+    });
+  } catch (error) {
+    console.error("Shop page error:", error);
+    res.render("user/shop", {
+      products: mockShopProducts,
+      categories: shopCategories,
+      featuredProducts: mockShopProducts
+        .filter((product) => product.isFeatured)
+        .slice(0, 8),
+      storeSettings,
+      pageName: "shop",
+      pageTitle: "Shop Collection | Zayrah Couture",
+      pageCss: "/css/user/shop.css",
+      pageJs: "/js/user/shop.js",
     });
   }
 };

@@ -1,0 +1,65 @@
+<form class="shop-filter-panel" data-filter-form>
+  <div class="shop-filter-panel__head">
+    <h2>Filters</h2>
+    <span class="filter-count-badge" data-filter-count>0</span>
+  </div>
+
+  <div class="filter-block">
+    <span class="filter-label">Search</span>
+    <div class="filter-search">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input type="search" data-search-filter placeholder="Search products..." autocomplete="off" aria-label="Search products" />
+    </div>
+  </div>
+
+  <div class="filter-block">
+    <h3 class="filter-block__title">Categories</h3>
+    <div class="filter-options">
+      <% safeCategories.forEach(function(category, index) { %>
+        <label class="filter-check">
+          <input type="checkbox" value="<%= categoryName(category) %>" data-category-filter />
+          <span><%= categoryName(category) %></span>
+        </label>
+      <% }); %>
+    </div>
+  </div>
+
+  <div class="filter-block">
+    <div class="filter-range__top">
+      <h3 class="filter-block__title">Price Range</h3>
+      <span data-price-output>₹20,000</span>
+    </div>
+    <input type="range" class="form-range filter-range" min="500" max="20000" step="500" value="20000" data-price-filter />
+    <div class="filter-range__values">
+      <span>₹500</span>
+      <span>₹20,000</span>
+    </div>
+  </div>
+
+  <div class="filter-block">
+    <h3 class="filter-block__title">Availability</h3>
+    <div class="filter-options">
+      <label class="filter-check">
+        <input type="checkbox" value="in" data-stock-filter />
+        <span>In Stock</span>
+      </label>
+      <label class="filter-check">
+        <input type="checkbox" value="out" data-stock-filter />
+        <span>Out of Stock</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="filter-block">
+    <label class="filter-switch">
+      <input type="checkbox" data-featured-filter />
+      <span class="filter-switch__track"></span>
+      <span>Show Featured Only</span>
+    </label>
+  </div>
+
+  <button type="button" class="filter-clear" data-clear-filters>
+    <i class="fa-solid fa-rotate-left"></i>
+    Clear Filters
+  </button>
+</form>

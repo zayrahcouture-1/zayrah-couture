@@ -1,0 +1,267 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<%
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeFeaturedProducts = Array.isArray(featuredProducts) && featuredProducts.length ? featuredProducts : safeProducts.slice(0, 6);
+  const money = function(value) {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(Number(value || 0));
+  };
+  const categoryName = function(category) {
+    if (typeof category === 'string') return category;
+    return category && category.name ? category.name : 'Collection';
+  };
+  const categorySlug = function(category) {
+    const name = categoryName(category);
+    return category && category.slug ? category.slug : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  };
+%>
+
+<main class="shop-page" id="main-content">
+  <section class="shop-hero" aria-labelledby="shop-heading">
+    <img
+      src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1800&h=720&fit=crop"
+      alt=""
+      class="shop-hero__image"
+      loading="eager"
+      width="1800"
+      height="720"
+      aria-hidden="true"
+    />
+    <div class="shop-hero__overlay"></div>
+    <div class="container shop-hero__content">
+      <nav class="shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Shop</span>
+      </nav>
+      <h1 class="shop-hero__title" id="shop-heading">Shop Collection</h1>
+      <p class="shop-hero__text">Discover our curated collection of elegant modest fashion.</p>
+    </div>
+  </section>
+
+  <button
+    class="mobile-filter-button"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#shopFilterOffcanvas"
+    aria-controls="shopFilterOffcanvas"
+  >
+    <i class="fa-solid fa-sliders"></i>
+    <span>Filters</span>
+    <span class="filter-count-badge" data-filter-count>0</span>
+  </button>
+
+  <section class="shop-shell section" aria-label="Shop products">
+    <div class="container">
+      <div class="shop-layout">
+        <aside class="shop-sidebar d-none d-lg-block" aria-label="Product filters">
+          <%- include('../partials/shop-filters', { safeCategories, categoryName, categorySlug }) %>
+        </aside>
+
+        <div class="shop-content">
+          <div class="shop-toolbar">
+            <p class="shop-toolbar__count" id="productCount">Showing 0 products</p>
+            <button
+              class="shop-toolbar__filter d-inline-flex d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#shopFilterOffcanvas"
+              aria-controls="shopFilterOffcanvas"
+            >
+              <i class="fa-solid fa-sliders"></i>
+              Filters
+              <span class="filter-count-badge" data-filter-count>0</span>
+            </button>
+            <label class="shop-sort" for="sortProducts">
+              <span>Sort</span>
+              <select class="form-select" id="sortProducts">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="price-asc">Price Low To High</option>
+                <option value="price-desc">Price High To Low</option>
+                <option value="az">A-Z</option>
+                <option value="za">Z-A</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="shop-skeleton" id="shopSkeleton" aria-hidden="true">
+            <% for (let i = 0; i < 8; i++) { %>
+              <div class="skeleton-card"></div>
+            <% } %>
+          </div>
+
+          <div class="shop-grid" id="productGrid">
+            <% safeProducts.forEach(function(product, index) {
+              const productPrice = Number(product.price || 0);
+              const currentPrice = product.salePrice ? Number(product.salePrice) : productPrice;
+              const category = product.category || 'Collection';
+              const inStock = typeof product.inStock === 'boolean' ? product.inStock : Number(product.stock || 0) > 0;
+              const badge = product.badge || (product.isSale ? 'SALE' : (product.isNew ? 'NEW' : ''));
+            %>
+              <article
+                class="shop-product-card reveal-up"
+                style="--delay: <%= (index % 4) * 0.06 %>s"
+                data-product-card
+                data-name="<%= product.name %>"
+                data-category="<%= category %>"
+                data-price="<%= currentPrice %>"
+                data-original-price="<%= productPrice %>"
+                data-featured="<%= product.isFeatured ? 'true' : 'false' %>"
+                data-stock="<%= inStock ? 'in' : 'out' %>"
+                data-created="<%= product.createdAt || '' %>"
+              >
+                <div class="shop-product-card__media">
+                  <a href="/product/<%= product.slug %>" aria-label="View <%= product.name %>">
+                    <img
+                      src="<%= product.image %>"
+                      alt="<%= product.name %>"
+                      class="shop-product-card__image shop-product-card__image--primary"
+                      loading="lazy"
+                      width="650"
+                      height="850"
+                    />
+                    <img
+                      src="<%= product.hoverImage || product.image %>"
+                      alt=""
+                      class="shop-product-card__image shop-product-card__image--hover"
+                      loading="lazy"
+                      width="650"
+                      height="850"
+                      aria-hidden="true"
+                    />
+                  </a>
+                  <% if (badge) { %>
+                    <span class="shop-badge shop-badge--<%= badge.toLowerCase() %>"><%= badge %></span>
+                  <% } %>
+                  <% if (!inStock) { %>
+                    <span class="shop-stock-badge">Out of Stock</span>
+                  <% } %>
+                  <button class="shop-wishlist" type="button" aria-label="Add <%= product.name %> to wishlist">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>Wishlist</span>
+                  </button>
+                  <button class="shop-quick-view" type="button" data-quick-view="<%= product.slug %>">
+                    Quick View
+                  </button>
+                </div>
+                <div class="shop-product-card__body">
+                  <p class="shop-product-card__category"><%= category %></p>
+                  <h2 class="shop-product-card__name">
+                    <a href="/product/<%= product.slug %>"><%= product.name %></a>
+                  </h2>
+                  <div class="shop-product-card__price">
+                    <% if (product.salePrice) { %>
+                      <span class="price-current"><%= money(product.salePrice) %></span>
+                      <span class="price-was"><%= money(product.price) %></span>
+                    <% } else { %>
+                      <span class="price-current"><%= money(product.price) %></span>
+                    <% } %>
+                  </div>
+                </div>
+              </article>
+            <% }); %>
+          </div>
+
+          <div class="shop-empty-state" id="emptyState" hidden>
+            <i class="fa-regular fa-face-smile"></i>
+            <h2>No products found</h2>
+            <p>Try adjusting your filters or clearing the current selection.</p>
+            <button class="btn btn-zayrah btn-zayrah--primary" type="button" data-clear-filters>Clear Filters</button>
+          </div>
+
+          <nav class="shop-pagination" aria-label="Product pagination" id="shopPagination"></nav>
+
+          <section class="shop-promo" aria-labelledby="shop-promo-heading">
+            <img
+              src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1600&h=620&fit=crop"
+              alt=""
+              loading="lazy"
+              width="1600"
+              height="620"
+              aria-hidden="true"
+            />
+            <div class="shop-promo__overlay"></div>
+            <div class="shop-promo__content">
+              <h2 id="shop-promo-heading">New Season Collection</h2>
+              <p>Discover timeless designs crafted for modern elegance.</p>
+              <a href="#productGrid" class="btn btn-zayrah btn-zayrah--light">Shop Now</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section recently-viewed" aria-labelledby="recently-viewed-heading">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title" id="recently-viewed-heading">Recently Viewed</h2>
+      </div>
+      <div class="swiper recently-viewed-slider">
+        <div class="swiper-wrapper">
+          <% safeFeaturedProducts.forEach(function(product) { %>
+            <article class="swiper-slide recent-card">
+              <a href="/product/<%= product.slug %>">
+                <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy" width="260" height="330" />
+                <span class="recent-card__name"><%= product.name %></span>
+                <span class="recent-card__price"><%= money(product.salePrice || product.price) %></span>
+              </a>
+            </article>
+          <% }); %>
+        </div>
+        <div class="recently-viewed__controls">
+          <button class="recently-viewed__btn recently-viewed__btn--prev" type="button" aria-label="Previous recently viewed product">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <button class="recently-viewed__btn recently-viewed__btn--next" type="button" aria-label="Next recently viewed product">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shop-newsletter" aria-labelledby="shop-newsletter-heading">
+    <div class="container">
+      <div class="shop-newsletter__inner">
+        <div>
+          <h2 id="shop-newsletter-heading">Join The Zayrah Community</h2>
+          <p>Get updates on new arrivals, exclusive collections, and offers.</p>
+        </div>
+        <form class="shop-newsletter__form" id="shopNewsletterForm" novalidate>
+          <label class="visually-hidden" for="shopNewsletterEmail">Email address</label>
+          <input type="email" id="shopNewsletterEmail" placeholder="Email address" autocomplete="email" required />
+          <button class="btn btn-zayrah btn-zayrah--primary" type="submit">Subscribe</button>
+          <p class="shop-newsletter__message" id="shopNewsletterMessage" role="status"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div
+  class="offcanvas offcanvas-start shop-filter-offcanvas"
+  tabindex="-1"
+  id="shopFilterOffcanvas"
+  aria-labelledby="shopFilterOffcanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="shopFilterOffcanvasLabel">Filters</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <%- include('../partials/shop-filters', { safeCategories, categoryName, categorySlug }) %>
+  </div>
+</div>
+
+<script type="application/json" id="shopProductsData"><%- JSON.stringify(safeProducts) %></script>
+
+<%- include('../partials/footer') %>
+<%- include('../partials/scripts') %>

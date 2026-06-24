@@ -30,11 +30,11 @@
       <!-- Desktop navigation -->
       <div class="zayrah-nav__desktop d-none d-lg-block">
         <ul class="zayrah-nav__links">
-          <li><a class="nav-link active" href="/">Home</a></li>
-          <li><a class="nav-link" href="#">Shop</a></li>
-          <li><a class="nav-link" href="#shop">Featured</a></li>
-          <li><a class="nav-link" href="#categories">Categories</a></li>
-          <li><a class="nav-link" href="#about">About</a></li>
+          <li><a class="nav-link <%= typeof pageName === 'undefined' || pageName === 'home' ? 'active' : '' %>" href="/">Home</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'shop' ? 'active' : '' %>" href="/shop">Shop</a></li>
+          <li><a class="nav-link" href="/#shop">Featured</a></li>
+          <li><a class="nav-link" href="/#categories">Categories</a></li>
+          <li><a class="nav-link" href="/#about">About</a></li>
           <li><a class="nav-link" href="#contact">Contact</a></li>
         </ul>
       </div>
@@ -42,12 +42,12 @@
       <!-- Mobile navigation -->
       <div class="collapse zayrah-nav__mobile" id="mainNav">
         <ul class="zayrah-nav__links zayrah-nav__links--mobile">
-          <li><a class="nav-link active" href="/">Home</a></li>
-          <li><a class="nav-link" href="#shop">Shop</a></li>
-          <li><a class="nav-link" href="#shop">New Arrivals</a></li>
-          <li><a class="nav-link" href="#collections">Collections</a></li>
-          <li><a class="nav-link" href="#categories">Categories</a></li>
-          <li><a class="nav-link" href="#about">About</a></li>
+          <li><a class="nav-link <%= typeof pageName === 'undefined' || pageName === 'home' ? 'active' : '' %>" href="/">Home</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'shop' ? 'active' : '' %>" href="/shop">Shop</a></li>
+          <li><a class="nav-link" href="/#shop">New Arrivals</a></li>
+          <li><a class="nav-link" href="/#collections">Collections</a></li>
+          <li><a class="nav-link" href="/#categories">Categories</a></li>
+          <li><a class="nav-link" href="/#about">About</a></li>
           <li><a class="nav-link" href="#contact">Contact</a></li>
         </ul>
       </div>
