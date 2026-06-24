@@ -10,6 +10,7 @@ const authRoutes = require("./routes/admin/Auth.js");
 const dashboardRoutes = require("./routes/admin/Dashboard.js");
 const categoryRoutes = require("./routes/admin/Category");
 const productRoutes = require("./routes/admin/Product");
+const homeRoutes = require("./routes/user/Home");
 
 const app = express();
 
@@ -39,9 +40,7 @@ app.set("view engine", "ejs");
 
 app.set("views", path.join(__dirname, "views"));
 
-app.get("/", (req, res) => {
-  res.render("user/home");
-});
+app.use("/", homeRoutes);
 
 app.use("/admin", authRoutes);
 app.use("/admin", dashboardRoutes);

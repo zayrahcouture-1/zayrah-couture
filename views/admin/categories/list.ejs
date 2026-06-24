@@ -32,6 +32,10 @@
         <a href="/admin/products" class="nav-link">Product Management</a>
         <a href="/admin/categories" class="nav-link active">Category Management</a>
         <a href="#" class="nav-link">Settings</a>
+        <a href="/admin/logout" class="nav-link" style="color: var(--red); border: 1px solid rgba(138, 47, 47, 0.2); background: rgba(138, 47, 47, 0.04); margin-top: 20px; font-weight: 600;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-right: 8px; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
       </nav>
     </aside>
 
@@ -53,13 +57,7 @@
           <p>Manage your product categories</p>
         </div>
 
-        <div class="profile">
-          <div class="avatar">AR</div>
-          <div>
-            <strong>Admin Rizan</strong>
-            <span>Super Admin</span>
-          </div>
-        </div>
+
       </header>
 
       <!-- ── Toolbar ── -->
@@ -99,15 +97,26 @@
                   <p class="category-desc"><%= category.description.length > 80 ? category.description.substring(0, 80) + '…' : category.description %></p>
                 <% } %>
 
-                <!-- Status toggle -->
+                <!-- Status toggles -->
                 <div class="category-status">
-                  <span class="status-label">Listed</span>
-                  <form action="/admin/categories/toggle-status/<%= category._id %>" method="POST" class="toggle-form">
-                    <label class="toggle-switch">
-                      <input type="checkbox" class="toggle-input" <%= category.isListed ? 'checked' : '' %> />
-                      <span class="toggle-track"></span>
-                    </label>
-                  </form>
+                  <div class="status-item">
+                    <span class="status-label">Listed</span>
+                    <form action="/admin/categories/toggle-status/<%= category._id %>" method="POST" class="toggle-form">
+                      <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" <%= category.isListed ? 'checked' : '' %> />
+                        <span class="toggle-track"></span>
+                      </label>
+                    </form>
+                  </div>
+                  <div class="status-item">
+                    <span class="status-label">Featured</span>
+                    <form action="/admin/categories/toggle-featured/<%= category._id %>" method="POST" class="toggle-form">
+                      <label class="toggle-switch toggle-switch--featured">
+                        <input type="checkbox" class="toggle-input" <%= category.isFeatured ? 'checked' : '' %> />
+                        <span class="toggle-track"></span>
+                      </label>
+                    </form>
+                  </div>
                 </div>
 
                 <!-- Meta row -->

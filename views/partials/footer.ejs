@@ -1,0 +1,70 @@
+<footer class="site-footer" id="contact">
+  <div class="container">
+    <div class="row g-5 footer-top">
+      <div class="col-lg-4 col-md-6">
+        <a class="footer-logo" href="/">
+          <span class="logo-text">ZAYRAH</span>
+          <span class="logo-sub">Couture</span>
+        </a>
+        <p class="footer-about">
+          <%= typeof storeSettings !== 'undefined' ? storeSettings.tagline : 'Elegant modest fashion curated for the modern woman.' %>
+          Crafted with love, designed for timeless elegance.
+        </p>
+        <div class="footer-social">
+          <a href="<%= storeSettings.instagram %>" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="<%= storeSettings.facebook %>" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="<%= storeSettings.whatsapp %>" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <h4 class="footer-heading">Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="#shop">Shop</a></li>
+          <li><a href="#collections">Collections</a></li>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <h4 class="footer-heading">Help</h4>
+        <ul class="footer-links">
+          <li><a href="#">Shipping</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <h4 class="footer-heading">Contact</h4>
+        <ul class="footer-contact">
+          <li>
+            <i class="fa-regular fa-envelope"></i>
+            <a href="mailto:<%= storeSettings.email %>"><%= storeSettings.email %></a>
+          </li>
+          <li>
+            <i class="fa-solid fa-phone"></i>
+            <a href="tel:<%= storeSettings.phone.replace(/\s/g, '') %>"><%= storeSettings.phone %></a>
+          </li>
+          <li>
+            <i class="fa-solid fa-location-dot"></i>
+            <span><%= storeSettings.address %></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Zayrah Couture. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

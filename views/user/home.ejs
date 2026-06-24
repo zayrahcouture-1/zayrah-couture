@@ -1,11 +1,348 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Store</title>
-</head>
-<body>
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
 
-<h1>Store Home</h1>
+<main id="main-content">
 
-</body>
-</html>
+  <!-- Hero Section -->
+  <section class="hero-section" aria-label="Hero">
+    <div class="hero-decor hero-decor--circle hero-decor--1"></div>
+    <div class="hero-decor hero-decor--circle hero-decor--2"></div>
+    <div class="hero-decor hero-decor--leaf hero-decor--3">
+      <svg viewBox="0 0 60 80" fill="none" aria-hidden="true"><path d="M30 5C30 5 5 35 5 55C5 70 15 78 30 78C45 78 55 70 55 55C55 35 30 5 30 5Z" stroke="currentColor" stroke-width="1.2"/></svg>
+    </div>
+    <div class="hero-decor hero-decor--leaf hero-decor--4">
+      <svg viewBox="0 0 60 80" fill="none" aria-hidden="true"><path d="M30 5C30 5 5 35 5 55C5 70 15 78 30 78C45 78 55 70 55 55C55 35 30 5 30 5Z" stroke="currentColor" stroke-width="1.2"/></svg>
+    </div>
+
+    <div class="container hero-container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-3 order-lg-1 order-2">
+          <h1 class="hero-title-display" aria-hidden="true">ZAYRAH</h1>
+        </div>
+
+        <div class="col-lg-5 order-lg-2 order-1">
+          <div class="hero-images">
+            <div class="hero-image hero-image--primary">
+              <img
+                src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop"
+                alt="Elegant modest fashion model wearing Zayrah Couture"
+                loading="eager"
+                width="500"
+                height="700"
+              />
+            </div>
+            <div class="hero-image hero-image--secondary">
+              <img
+                src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=550&fit=crop"
+                alt="Premium ready-to-wear collection by Zayrah"
+                loading="eager"
+                width="400"
+                height="550"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 order-lg-3 order-3">
+          <div class="hero-content">
+            <p class="hero-eyebrow">New Season</p>
+            <h2 class="hero-heading">From Zayrah, With Love</h2>
+            <p class="hero-description">
+              Discover curated collections inspired by feminine elegance
+            </p>
+            <a href="#collections" class="btn btn-zayrah btn-zayrah--primary">
+              Explore Collection
+              <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Category Grid -->
+  <section class="section category-section" id="categories" aria-labelledby="categories-heading">
+    <div class="container">
+      <header class="section-header text-center reveal-up">
+        <h2 class="section-title" id="categories-heading">Featured Categories</h2>
+      </header>
+
+      <div class="category-grid">
+        <% featuredCategories.forEach(function(cat, index) { %>
+          <article class="category-card category-card--<%= cat.size || 'medium' %> reveal-up" style="--delay: <%= index * 0.1 %>s">
+            <a href="/shop/<%= cat.slug %>" class="category-card__link">
+              <img
+                src="<%= cat.image %>"
+                alt="<%= cat.title %>"
+                class="category-card__img"
+                loading="lazy"
+                width="800"
+                height="600"
+              />
+              <div class="category-card__overlay"></div>
+              <div class="category-card__content">
+                <h3 class="category-card__title"><%= cat.title %></h3>
+                <p class="category-card__subtitle"><%= cat.subtitle %></p>
+                <span class="category-card__btn">Explore <i class="fa-solid fa-arrow-right"></i></span>
+              </div>
+            </a>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="section products-section" id="shop" aria-labelledby="featured-heading">
+    <div class="container">
+      <header class="section-header text-center reveal-up">
+        <h2 class="section-title" id="featured-heading">Featured Products</h2>
+        <p class="section-subtitle">Discover our most loved fashion pieces.</p>
+      </header>
+
+      <div class="row g-4 product-grid">
+        <% featuredProducts.slice(0, 8).forEach(function(product, index) { %>
+          <div class="col-xl-3 col-lg-3 col-md-6 col-12 reveal-up" style="--delay: <%= (index % 4) * 0.08 %>s">
+            <article class="product-card">
+              <div class="product-card__image-wrap">
+                <a href="/product/<%= product.slug %>" tabindex="-1" aria-hidden="true">
+                  <img
+                    src="<%= product.image %>"
+                    alt="<%= product.name %>"
+                    class="product-card__img"
+                    loading="lazy"
+                    width="600"
+                    height="800"
+                  />
+                </a>
+                <% if (product.badge) { %>
+                  <span class="product-badge product-badge--<%= product.badge.toLowerCase() %>"><%= product.badge %></span>
+                <% } %>
+                <button class="product-wishlist" aria-label="Add to wishlist" data-product-id="<%= product.id %>">
+                  <i class="fa-regular fa-heart"></i>
+                </button>
+                <div class="product-card__actions">
+                  <button class="btn-quick-view" data-product="<%= product.slug %>">Quick View</button>
+                </div>
+              </div>
+              <div class="product-card__body">
+                <span class="product-card__category"><%= product.category %></span>
+                <h3 class="product-card__name">
+                  <a href="/product/<%= product.slug %>"><%= product.name %></a>
+                </h3>
+                <div class="product-card__price">
+                  <% if (product.salePrice) { %>
+                    <span class="price-sale">$<%= product.salePrice %></span>
+                    <span class="price-original">$<%= product.price %></span>
+                  <% } else { %>
+                    <span class="price-regular">$<%= product.price %></span>
+                  <% } %>
+                </div>
+              </div>
+            </article>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotional Banner -->
+  <section class="promo-banner" id="collections" aria-labelledby="promo-heading">
+    <div class="promo-banner__bg">
+      <img
+        src="https://images.unsplash.com/photo-1558171814-2fcedf5a6a9e?w=1600&h=600&fit=crop"
+        alt=""
+        loading="lazy"
+        aria-hidden="true"
+        width="1600"
+        height="600"
+      />
+    </div>
+    <div class="container">
+      <div class="promo-banner__card reveal-up">
+        <h2 class="promo-banner__title" id="promo-heading">Most Loved Collection</h2>
+        <p class="promo-banner__text">Explore timeless designs crafted with elegance.</p>
+        <a href="#collections" class="btn btn-zayrah btn-zayrah--light">View Collection</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mega Sale Section -->
+  <section class="section mega-sale-section" aria-labelledby="megasale-heading">
+    <div class="container">
+      <header class="section-header text-center reveal-up">
+        <span class="section-eyebrow">Limited Time</span>
+        <h2 class="section-title" id="megasale-heading">Mega Sale Event</h2>
+      </header>
+
+      <div class="mega-sale-track reveal-up">
+        <% megaSaleProducts.forEach(function(product) { %>
+          <article class="mega-sale-card">
+            <a href="/product/<%= product.slug %>" class="mega-sale-card__image">
+              <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy" width="350" height="450" />
+              <span class="product-badge product-badge--sale">SALE</span>
+            </a>
+            <div class="mega-sale-card__body">
+              <h3 class="mega-sale-card__name">
+                <a href="/product/<%= product.slug %>"><%= product.name %></a>
+              </h3>
+              <div class="mega-sale-card__price">
+                <span class="price-original">$<%= product.price %></span>
+                <span class="price-sale">$<%= product.salePrice || product.price %></span>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section how-it-works" id="about" aria-labelledby="how-heading">
+    <div class="container">
+      <header class="section-header text-center reveal-up">
+        <h2 class="section-title" id="how-heading">How It Works</h2>
+        <p class="section-subtitle">Your journey to effortless elegance in three simple steps.</p>
+      </header>
+
+      <div class="steps-wrapper reveal-up">
+        <div class="steps-line" aria-hidden="true"></div>
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-4">
+            <article class="step-card">
+              <div class="step-card__icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+              <span class="step-card__number">01</span>
+              <h3 class="step-card__title">Choose Your Style</h3>
+              <p class="step-card__text">Browse curated collections and find pieces that reflect your personal elegance.</p>
+            </article>
+          </div>
+          <div class="col-md-4">
+            <article class="step-card">
+              <div class="step-card__icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+              </div>
+              <span class="step-card__number">02</span>
+              <h3 class="step-card__title">Place Your Order</h3>
+              <p class="step-card__text">Secure checkout with flexible payment options and personalized sizing support.</p>
+            </article>
+          </div>
+          <div class="col-md-4">
+            <article class="step-card">
+              <div class="step-card__icon">
+                <i class="fa-solid fa-truck-fast"></i>
+              </div>
+              <span class="step-card__number">03</span>
+              <h3 class="step-card__title">Receive Delivery</h3>
+              <p class="step-card__text">Premium packaging delivered to your door, ready to wear with confidence.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instagram Section -->
+  <section class="section instagram-section" aria-labelledby="instagram-heading">
+    <div class="container">
+      <header class="section-header text-center reveal-up">
+        <h2 class="section-title" id="instagram-heading">Our Instagram</h2>
+        <p class="section-subtitle">Follow our daily inspiration @zayrahcouture</p>
+      </header>
+
+      <div class="instagram-grid reveal-up">
+        <% instagramPosts.forEach(function(post, index) { %>
+          <a href="<%= post.link %>" class="instagram-card <%= index >= 6 ? 'instagram-card--hidden' : '' %>" target="_blank" rel="noopener noreferrer" aria-label="View Instagram post">
+            <img src="<%= post.image %>" alt="Zayrah Couture Instagram post" loading="lazy" width="400" height="400" />
+            <div class="instagram-card__overlay">
+              <% if (post.isReel) { %>
+                <i class="fa-solid fa-play instagram-card__play"></i>
+              <% } else { %>
+                <i class="fa-brands fa-instagram"></i>
+              <% } %>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+
+      <div class="instagram-actions text-center reveal-up">
+        <button class="btn btn-zayrah btn-zayrah--outline" id="loadMoreInstagram">Load More</button>
+        <a href="<%= storeSettings.instagram %>" class="btn btn-zayrah btn-zayrah--primary" target="_blank" rel="noopener noreferrer">
+          <i class="fa-brands fa-instagram me-2"></i> Follow on Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="section newsletter-section" aria-labelledby="newsletter-heading">
+    <div class="container">
+      <div class="newsletter-card reveal-up">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6">
+            <h2 class="newsletter-card__title" id="newsletter-heading">Discover Our Latest Collection</h2>
+            <p class="newsletter-card__text">
+              Be the first to explore new arrivals, exclusive offers, and styling inspiration delivered to your inbox.
+            </p>
+            <a href="#shop" class="btn btn-zayrah btn-zayrah--primary">Shop Now</a>
+          </div>
+          <div class="col-lg-6">
+            <form class="newsletter-form" id="newsletterForm" novalidate>
+              <label for="newsletterEmail" class="visually-hidden">Email address</label>
+              <div class="newsletter-form__group">
+                <input
+                  type="email"
+                  id="newsletterEmail"
+                  class="newsletter-form__input"
+                  placeholder="Enter your email address"
+                  required
+                  autocomplete="email"
+                />
+                <button type="submit" class="btn btn-zayrah btn-zayrah--dark">Subscribe</button>
+              </div>
+              <p class="newsletter-form__note" id="newsletterMessage" role="status"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial Section -->
+  <section class="section testimonial-section" aria-labelledby="testimonial-heading">
+    <div class="container">
+      <article class="testimonial-card reveal-up">
+        <div class="testimonial-card__avatar">
+          <img
+            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop"
+            alt="Sarah Al-Mansouri"
+            loading="lazy"
+            width="120"
+            height="120"
+          />
+        </div>
+        <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <blockquote class="testimonial-card__quote" id="testimonial-heading">
+          <p>"Zayrah Couture transformed my wardrobe. Every piece feels luxurious, thoughtfully designed, and perfectly modest. The quality and attention to detail are unmatched."</p>
+        </blockquote>
+        <cite class="testimonial-card__author">Sarah Al-Mansouri</cite>
+        <span class="testimonial-card__role">Loyal Customer, Dubai</span>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<%- include('../partials/footer') %>
+
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
+
+<%- include('../partials/scripts') %>

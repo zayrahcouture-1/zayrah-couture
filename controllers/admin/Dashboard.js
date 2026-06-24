@@ -6,17 +6,10 @@ const loadDashboard = async (req, res) => {
     const totalProducts = await Product.countDocuments();
     const totalCategories = await Category.countDocuments();
 
-    // Fetch the latest 5 products, populated with their category name
-    const latestProducts = await Product.find()
-      .populate("category", "name")
-      .sort({ createdAt: -1 })
-      .limit(5);
-
     res.render("admin/dashboard", {
       totalProducts,
       totalCategories,
       totalOrders: 0,
-      latestProducts,
     });
   } catch (error) {
     console.log(error);

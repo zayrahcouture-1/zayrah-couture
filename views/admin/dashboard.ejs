@@ -22,6 +22,10 @@
         <a href="/admin/products" class="nav-link">Product Management</a>
         <a href="/admin/categories" class="nav-link">Category Management</a>
         <a href="#" class="nav-link">Settings</a>
+        <a href="/admin/logout" class="nav-link" style="color: var(--red); border: 1px solid rgba(138, 47, 47, 0.2); background: rgba(138, 47, 47, 0.04); margin-top: 20px; font-weight: 600;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-right: 8px; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
       </nav>
     </aside>
 
@@ -40,13 +44,7 @@
           <p>Welcome back, Director. Here is your daily curated summary.</p>
         </div>
 
-        <div class="profile">
-          <div class="avatar">AR</div>
-          <div>
-            <strong>Admin Rizan</strong>
-            <span>Super Admin</span>
-          </div>
-        </div>
+
       </header>
 
       <section class="stats">
@@ -63,68 +61,9 @@
         </article>
       </section>
 
-      <section class="spotlight-head">
-        <div>
-          <h2>Inventory Spotlight</h2>
-          <p>Newly added pieces to the collection.</p>
-        </div>
-      </section>
 
-      <section class="spotlight-grid">
-        <% if (typeof latestProducts !== 'undefined' && latestProducts && latestProducts.length > 0) { %>
-          <% latestProducts.forEach(function(product, index) { %>
-            <article class="spot-card">
-              <div class="spot-img spot-<%= (index % 4) + 1 %>" <% if (product.images && product.images.length > 0) { %> style="background-image: url('<%= product.images[0].url %>');" <% } %>>
-                <span class="badge"><%= product.category ? product.category.name : 'New Drop' %></span>
-              </div>
-              <h3><%= product.name %></h3>
-              <p>
-                <% if (product.discountPrice && product.discountPrice > 0) { %>
-                  ₹<%= product.discountPrice.toLocaleString('en-IN') %> <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-left: 6px;">₹<%= product.price.toLocaleString('en-IN') %></span>
-                <% } else { %>
-                  ₹<%= product.price.toLocaleString('en-IN') %>
-                <% } %>
-              </p>
-            </article>
-          <% }); %>
-        <% } else { %>
-          <article class="spot-card">
-            <div class="spot-img spot-1">
-              <span class="badge">Best Seller</span>
-            </div>
-            <h3>The Obsidian Drape</h3>
-            <p>Elegant couture silhouette</p>
-          </article>
 
-          <article class="spot-card">
-            <div class="spot-img spot-2">
-              <span class="badge badge-red">New Drop</span>
-            </div>
-            <h3>Floral Atelier Veil</h3>
-            <p>Bridal premium selection</p>
-          </article>
 
-          <article class="spot-card">
-            <div class="spot-img spot-3">
-              <span class="badge">Top Rated</span>
-            </div>
-            <h3>Structured Heritage Blazer</h3>
-            <p>Tailored formal wear</p>
-          </article>
-
-          <article class="spot-card">
-            <div class="spot-img spot-4">
-              <span class="badge">Available</span>
-            </div>
-            <h3>Marbled Clutch</h3>
-            <p>Minimal accessories</p>
-          </article>
-        <% } %>
-      </section>
-
-      <div class="actions">
-        <button class="collection-btn">+ New Collection</button>
-      </div>
     </main>
   </div>
 

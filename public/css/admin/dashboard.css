@@ -286,6 +286,11 @@ body {
 }
 
 @media (max-width: 720px) {
+  .topbar {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
   .stats, .spotlight-grid { grid-template-columns: 1fr; }
   .spot-img { height: 280px; }
   .topbar__title h1 { font-size: 1.7rem; }

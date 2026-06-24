@@ -174,11 +174,30 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+const toggleFeatured = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.redirect("/admin/categories?error=Category not found");
+    }
+
+    category.isFeatured = !category.isFeatured;
+    await category.save();
+
+    res.redirect("/admin/categories?success=Category featured status updated");
+  } catch (error) {
+    console.log(error);
+    res.redirect("/admin/categories?error=Failed to update category featured status");
+  }
+};
+
 module.exports = {
   loadCategories,
   loadAddCategory,
   addCategory,
   toggleStatus,
+  toggleFeatured,
   loadEditCategory,
   editCategory,
   deleteCategory,

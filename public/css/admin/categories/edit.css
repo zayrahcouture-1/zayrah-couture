@@ -614,6 +614,11 @@ body {
 }
 
 @media (max-width: 720px) {
+  .topbar {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
   .topbar__title h1 { font-size: 1.7rem; }
   .toggles-row { grid-template-columns: 1fr; }
   .form-card { padding: 24px; }

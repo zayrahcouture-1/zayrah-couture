@@ -42,6 +42,12 @@ router.post(
   categoryController.toggleStatus
 );
 
+router.post(
+  "/categories/toggle-featured/:id",
+  isAdmin,
+  categoryController.toggleFeatured
+);
+
 router.get(
   "/categories/edit/:id",
   isAdmin,

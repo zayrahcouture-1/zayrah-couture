@@ -1,0 +1,78 @@
+<header class="site-header" id="siteHeader">
+  <nav class="zayrah-nav" aria-label="Main navigation">
+    <div class="container-fluid zayrah-nav__container">
+      <!-- Top bar: toggle | logo | search -->
+      <div class="zayrah-nav__top">
+        <button
+          class="zayrah-nav__toggle d-lg-none"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+          aria-controls="mainNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="zayrah-nav__toggle-bar"></span>
+          <span class="zayrah-nav__toggle-bar"></span>
+          <span class="zayrah-nav__toggle-bar"></span>
+        </button>
+
+        <a class="zayrah-nav__logo" href="/" aria-label="Zayrah Couture Home">
+          <span class="logo-text">ZAYRAH</span>
+          <span class="logo-sub">Couture</span>
+        </a>
+
+        <button class="nav-icon-btn" id="searchToggle" type="button" aria-label="Open search" aria-expanded="false" aria-controls="searchOverlay">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <!-- Desktop navigation -->
+      <div class="zayrah-nav__desktop d-none d-lg-block">
+        <ul class="zayrah-nav__links">
+          <li><a class="nav-link active" href="/">Home</a></li>
+          <li><a class="nav-link" href="#">Shop</a></li>
+          <li><a class="nav-link" href="#shop">Featured</a></li>
+          <li><a class="nav-link" href="#categories">Categories</a></li>
+          <li><a class="nav-link" href="#about">About</a></li>
+          <li><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Mobile navigation -->
+      <div class="collapse zayrah-nav__mobile" id="mainNav">
+        <ul class="zayrah-nav__links zayrah-nav__links--mobile">
+          <li><a class="nav-link active" href="/">Home</a></li>
+          <li><a class="nav-link" href="#shop">Shop</a></li>
+          <li><a class="nav-link" href="#shop">New Arrivals</a></li>
+          <li><a class="nav-link" href="#collections">Collections</a></li>
+          <li><a class="nav-link" href="#categories">Categories</a></li>
+          <li><a class="nav-link" href="#about">About</a></li>
+          <li><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Search overlay -->
+  <div class="search-overlay" id="searchOverlay" aria-hidden="true">
+    <div class="search-overlay__backdrop" id="searchBackdrop"></div>
+    <div class="search-overlay__panel" role="dialog" aria-modal="true" aria-label="Search products">
+      <form class="search-form" id="searchForm" role="search">
+        <i class="fa-solid fa-magnifying-glass search-form__icon" aria-hidden="true"></i>
+        <input
+          type="search"
+          id="searchInput"
+          class="search-form__input"
+          placeholder="Search products and categories..."
+          autocomplete="off"
+          aria-label="Search products and categories"
+        />
+        <button type="button" class="search-form__close" id="searchClose" aria-label="Close search">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </form>
+      <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
+    </div>
+  </div>
+</header>
