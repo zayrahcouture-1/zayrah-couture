@@ -173,6 +173,7 @@ body {
   width: 18px; height: 18px;
   color: var(--muted);
   pointer-events: none;
+  z-index: 2;
 }
 
 .search-input {

@@ -51,6 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.display = 'none';
       activeExistingCount--;
 
+      // Proactive count validation feedback
+      const totalCount = activeExistingCount + selectedFiles.length;
+      if (totalCount < 3) {
+        imagesErrorMsg.textContent = `At least 3 images are required (currently ${totalCount} remaining)`;
+        imagesErrorMsg.style.display = 'block';
+      } else {
+        imagesErrorMsg.style.display = 'none';
+      }
+
       // If no existing images left show placeholder
       if (activeExistingCount === 0) {
         existingGrid.innerHTML = '<p class="no-existing-text">No images currently uploaded.</p>';
@@ -72,8 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const confirmCropBtn   = document.getElementById('confirmCrop');
 
   let selectedFiles = []; // Array of { id, file, croppedBlob }
+  let filesToCrop = [];   // Queue of { id, file } for sequential cropping
   let cropper = null;
   let activeCropId = null;
+  let activeCropIsReCrop = false;
+  let activeCropFile = null;
 
   function renderPreviews() {
     uploadGrid.innerHTML = '';
@@ -81,37 +93,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedFiles.length === 0) {
       uploadGrid.style.display = 'none';
       uploadContent.style.display = 'flex';
-      return;
+    } else {
+      uploadGrid.style.display = 'grid';
+      uploadContent.style.display = 'none';
     }
-
-    uploadGrid.style.display = 'grid';
-    uploadContent.style.display = 'none';
 
     selectedFiles.forEach(item => {
       const itemEl = document.createElement('div');
       itemEl.className = 'upload-preview-item';
+      itemEl.title = 'Click image to crop/re-crop';
 
-      const displayUrl = item.croppedBlob 
-        ? URL.createObjectURL(item.croppedBlob) 
-        : URL.createObjectURL(item.file);
+      // Set thumbnail URL
+      const displayUrl = URL.createObjectURL(item.croppedBlob);
 
       itemEl.innerHTML = `
         <img src="${displayUrl}" alt="Preview" />
-        <div class="upload-preview-item__actions">
-          <button type="button" class="upload-preview-item__btn upload-preview-item__btn--crop" title="Crop Image">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>
-          </button>
-          <button type="button" class="upload-preview-item__btn upload-preview-item__btn--delete" title="Delete Image">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
+        <button type="button" class="upload-preview-item__btn--delete" title="Delete Image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       `;
 
-      itemEl.querySelector('.upload-preview-item__btn--crop').addEventListener('click', (e) => {
-        e.stopPropagation();
-        openCropModal(item.id);
+      // Attach Crop handler to clicking the thumbnail (for re-cropping)
+      itemEl.addEventListener('click', (e) => {
+        // If clicking delete button, don't open crop modal
+        if (e.target.closest('.upload-preview-item__btn--delete')) return;
+        openCropModal(item.id, item.file, true);
       });
 
+      // Attach Delete handler
       itemEl.querySelector('.upload-preview-item__btn--delete').addEventListener('click', (e) => {
         e.stopPropagation();
         deleteImageItem(item.id);
@@ -119,13 +128,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
       uploadGrid.appendChild(itemEl);
     });
+
+    // Add plus button/card if total combined images (existing + new) < 5
+    if (activeExistingCount + selectedFiles.length < 5) {
+      const plusEl = document.createElement('div');
+      plusEl.className = 'upload-preview-item upload-preview-item--plus';
+      plusEl.title = 'Add more images';
+      plusEl.innerHTML = `
+        <div class="upload-preview-item__plus-inner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+      `;
+      plusEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        imageInput.click();
+      });
+      uploadGrid.appendChild(plusEl);
+    }
+
+    // Proactive count validation feedback
+    const totalCount = activeExistingCount + selectedFiles.length;
+    if (totalCount < 3) {
+      imagesErrorMsg.textContent = `At least 3 images are required (currently ${totalCount} added/remaining)`;
+      imagesErrorMsg.style.display = 'block';
+    } else {
+      imagesErrorMsg.style.display = 'none';
+    }
+  }
+
+  function processNextFileToCrop() {
+    if (cropModalOverlay.classList.contains('show')) return; // already cropping something
+    if (filesToCrop.length === 0) return; // nothing to crop
+
+    const next = filesToCrop[0];
+    openCropModal(next.id, next.file, false);
   }
 
   function handleFilesSelection(files) {
     if (!files || files.length === 0) return;
     
-    // Total combined image limit (existing non-deleted + newly uploaded)
-    if (activeExistingCount + selectedFiles.length + files.length > 5) {
+    // Total combined image limit (existing non-deleted + newly uploaded + files in crop queue)
+    if (activeExistingCount + selectedFiles.length + filesToCrop.length + files.length > 5) {
       alert('A product can have a maximum of 5 images total.');
       return;
     }
@@ -133,15 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) return;
       
-      selectedFiles.push({
+      filesToCrop.push({
         id: Date.now() + Math.random(),
-        file: file,
-        croppedBlob: null
+        file: file
       });
     });
 
-    renderPreviews();
     imageInput.value = '';
+
+    // Start cropping queue
+    processNextFileToCrop();
   }
 
   function deleteImageItem(id) {
@@ -149,12 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPreviews();
   }
 
-  function openCropModal(id) {
-    const item = selectedFiles.find(x => x.id === id);
-    if (!item) return;
-
+  function openCropModal(id, file, isReCrop) {
     activeCropId = id;
-    
+    activeCropIsReCrop = isReCrop;
+    activeCropFile = file;
+
     const reader = new FileReader();
     reader.onload = (e) => {
       cropperImage.src = e.target.result;
@@ -170,16 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         background: false
       });
     };
-    reader.readAsDataURL(item.file);
-  }
-
-  function closeCropModal() {
-    cropModalOverlay.classList.remove('show');
-    if (cropper) {
-      cropper.destroy();
-      cropper = null;
-    }
-    activeCropId = null;
+    reader.readAsDataURL(file);
   }
 
   // Click zone to browse
@@ -194,8 +228,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  function closeCropModal() {
+    cropModalOverlay.classList.remove('show');
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+    activeCropId = null;
+    activeCropIsReCrop = false;
+    activeCropFile = null;
+  }
+
   // Cancel Crop
-  cancelCropBtn?.addEventListener('click', closeCropModal);
+  cancelCropBtn?.addEventListener('click', () => {
+    const wasReCrop = activeCropIsReCrop;
+    const cancelledId = activeCropId;
+
+    closeCropModal();
+
+    if (!wasReCrop) {
+      // Discard this image completely from the filesToCrop queue
+      filesToCrop = filesToCrop.filter(x => x.id !== cancelledId);
+      // Process next file in queue
+      setTimeout(() => {
+        processNextFileToCrop();
+      }, 150);
+    }
+  });
 
   // Confirm Crop
   confirmCropBtn?.addEventListener('click', () => {
@@ -206,18 +265,47 @@ document.addEventListener('DOMContentLoaded', () => {
       height: 600
     });
 
-    if (canvas) {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const item = selectedFiles.find(x => x.id === activeCropId);
+    if (!canvas) {
+      closeCropModal();
+      setTimeout(() => {
+        processNextFileToCrop();
+      }, 150);
+      return;
+    }
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const wasReCrop = activeCropIsReCrop;
+        const confirmedId = activeCropId;
+        const confirmedFile = activeCropFile;
+
+        if (wasReCrop) {
+          // Update in selectedFiles
+          const item = selectedFiles.find(x => x.id === confirmedId);
           if (item) {
             item.croppedBlob = blob;
             renderPreviews();
           }
+        } else {
+          // Add to selectedFiles
+          selectedFiles.push({
+            id: confirmedId,
+            file: confirmedFile,
+            croppedBlob: blob
+          });
+          renderPreviews();
+          // Remove from filesToCrop queue
+          filesToCrop = filesToCrop.filter(x => x.id !== confirmedId);
         }
-        closeCropModal();
-      }, 'image/jpeg', 0.9);
-    }
+      }
+      
+      closeCropModal();
+
+      // Process next file in queue
+      setTimeout(() => {
+        processNextFileToCrop();
+      }, 150);
+    }, 'image/jpeg', 0.9);
   });
 
   // Drag and Drop
@@ -276,8 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const priceField       = document.getElementById('priceField');
   const discountInput    = document.getElementById('productDiscount');
   const discountField    = document.getElementById('discountField');
-  const stockInput        = document.getElementById('productStock');
-  const stockField       = document.getElementById('stockField');
+
   const submitBtn        = document.getElementById('submitBtn');
   const imagesErrorMsg   = document.getElementById('imagesError');
 
@@ -285,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
   nameInput?.addEventListener('input', () => nameField.classList.remove('field--error'));
   categorySelect?.addEventListener('change', () => categoryField.classList.remove('field--error'));
   priceInput?.addEventListener('input', () => priceField.classList.remove('field--error'));
-  stockInput?.addEventListener('input', () => stockField.classList.remove('field--error'));
+
   discountInput?.addEventListener('input', () => discountField.classList.remove('field--error'));
 
   form?.addEventListener('submit', (e) => {
@@ -321,16 +408,11 @@ document.addEventListener('DOMContentLoaded', () => {
       isValid = false;
     }
 
-    // Validate Stock
-    const stockVal = parseInt(stockInput.value);
-    if (isNaN(stockVal) || stockVal < 0) {
-      stockField.classList.add('field--error');
-      if (isValid) stockInput.focus();
-      isValid = false;
-    }
 
-    // Validate Total Images Count (must have at least one image total)
-    if (activeExistingCount + selectedFiles.length === 0) {
+
+    // Validate Total Images Count (must have at least 3 images total)
+    if (activeExistingCount + selectedFiles.length < 3) {
+      imagesErrorMsg.textContent = 'A product must have at least 3 images total';
       imagesErrorMsg.style.display = 'block';
       isValid = false;
     } else {

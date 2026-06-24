@@ -19,8 +19,8 @@
 
       <nav class="sidebar__nav">
         <a href="/admin/dashboard" class="nav-link active">Overview</a>
-        <a href="/admin/products" class="nav-link">Products</a>
-        <a href="/admin/categories" class="nav-link">Categories</a>
+        <a href="/admin/products" class="nav-link">Product Management</a>
+        <a href="/admin/categories" class="nav-link">Category Management</a>
         <a href="#" class="nav-link">Settings</a>
       </nav>
     </aside>
@@ -52,13 +52,13 @@
       <section class="stats">
         <article class="stat-card">
           <span class="stat-label">Total Products</span>
-          <div class="stat-value"><%= totalProducts || 1240 %></div>
+          <div class="stat-value"><%= typeof totalProducts !== 'undefined' ? totalProducts : 0 %></div>
           <p>Inventory across all collections</p>
         </article>
 
         <article class="stat-card">
           <span class="stat-label">Total Categories</span>
-          <div class="stat-value"><%= totalCategories || 18 %></div>
+          <div class="stat-value"><%= typeof totalCategories !== 'undefined' ? totalCategories : 0 %></div>
           <p>Active storefront groups</p>
         </article>
       </section>
@@ -66,42 +66,60 @@
       <section class="spotlight-head">
         <div>
           <h2>Inventory Spotlight</h2>
-          <p>Highest performing pieces this quarter.</p>
+          <p>Newly added pieces to the collection.</p>
         </div>
       </section>
 
       <section class="spotlight-grid">
-        <article class="spot-card">
-          <div class="spot-img spot-1">
-            <span class="badge">Best Seller</span>
-          </div>
-          <h3>The Obsidian Drape</h3>
-          <p>Elegant couture silhouette</p>
-        </article>
+        <% if (typeof latestProducts !== 'undefined' && latestProducts && latestProducts.length > 0) { %>
+          <% latestProducts.forEach(function(product, index) { %>
+            <article class="spot-card">
+              <div class="spot-img spot-<%= (index % 4) + 1 %>" <% if (product.images && product.images.length > 0) { %> style="background-image: url('<%= product.images[0].url %>');" <% } %>>
+                <span class="badge"><%= product.category ? product.category.name : 'New Drop' %></span>
+              </div>
+              <h3><%= product.name %></h3>
+              <p>
+                <% if (product.discountPrice && product.discountPrice > 0) { %>
+                  ₹<%= product.discountPrice.toLocaleString('en-IN') %> <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-left: 6px;">₹<%= product.price.toLocaleString('en-IN') %></span>
+                <% } else { %>
+                  ₹<%= product.price.toLocaleString('en-IN') %>
+                <% } %>
+              </p>
+            </article>
+          <% }); %>
+        <% } else { %>
+          <article class="spot-card">
+            <div class="spot-img spot-1">
+              <span class="badge">Best Seller</span>
+            </div>
+            <h3>The Obsidian Drape</h3>
+            <p>Elegant couture silhouette</p>
+          </article>
 
-        <article class="spot-card">
-          <div class="spot-img spot-2">
-            <span class="badge badge-red">New Drop</span>
-          </div>
-          <h3>Floral Atelier Veil</h3>
-          <p>Bridal premium selection</p>
-        </article>
+          <article class="spot-card">
+            <div class="spot-img spot-2">
+              <span class="badge badge-red">New Drop</span>
+            </div>
+            <h3>Floral Atelier Veil</h3>
+            <p>Bridal premium selection</p>
+          </article>
 
-        <article class="spot-card">
-          <div class="spot-img spot-3">
-            <span class="badge">Top Rated</span>
-          </div>
-          <h3>Structured Heritage Blazer</h3>
-          <p>Tailored formal wear</p>
-        </article>
+          <article class="spot-card">
+            <div class="spot-img spot-3">
+              <span class="badge">Top Rated</span>
+            </div>
+            <h3>Structured Heritage Blazer</h3>
+            <p>Tailored formal wear</p>
+          </article>
 
-        <article class="spot-card">
-          <div class="spot-img spot-4">
-            <span class="badge">Available</span>
-          </div>
-          <h3>Marbled Clutch</h3>
-          <p>Minimal accessories</p>
-        </article>
+          <article class="spot-card">
+            <div class="spot-img spot-4">
+              <span class="badge">Available</span>
+            </div>
+            <h3>Marbled Clutch</h3>
+            <p>Minimal accessories</p>
+          </article>
+        <% } %>
       </section>
 
       <div class="actions">
@@ -111,5 +129,6 @@
   </div>
 
   <script src="/js/admin/dashboard.js"></script>
+  <%- include('partials/loader') %>
 </body>
 </html>

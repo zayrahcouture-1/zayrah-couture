@@ -101,6 +101,24 @@ const toggleProductStatus = async (req, res) => {
   }
 };
 
+// Toggle product featured state
+const toggleProductFeatured = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.redirect("/admin/products?error=Product not found");
+    }
+
+    product.isFeatured = !product.isFeatured;
+    await product.save();
+
+    res.redirect("/admin/products?success=Product featured status updated");
+  } catch (error) {
+    console.log(error);
+    res.redirect("/admin/products?error=Failed to update product featured status");
+  }
+};
+
 // Render Edit Product Form
 const loadEditProduct = async (req, res) => {
   try {
@@ -229,6 +247,7 @@ module.exports = {
   loadAddProduct,
   addProduct,
   toggleProductStatus,
+  toggleProductFeatured,
   loadEditProduct,
   editProduct,
   deleteProduct,

@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (toast) {
     setTimeout(() => {
       toast.classList.add('fade-out');
-      toast.addEventListener('animationend', () => {
+      setTimeout(() => {
         toast.remove();
-      }, { once: true });
-    }, 4000);
+      }, 400);
+    }, 3000);
   }
 
 });

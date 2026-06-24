@@ -29,8 +29,8 @@
 
       <nav class="sidebar__nav">
         <a href="/admin/dashboard" class="nav-link">Overview</a>
-        <a href="/admin/products" class="nav-link active">Products</a>
-        <a href="/admin/categories" class="nav-link">Categories</a>
+        <a href="/admin/products" class="nav-link active">Product Management</a>
+        <a href="/admin/categories" class="nav-link">Category Management</a>
         <a href="#" class="nav-link">Settings</a>
       </nav>
     </aside>
@@ -48,7 +48,7 @@
         </button>
 
         <div class="topbar__title">
-          <h1>Products</h1>
+          <h1>Product Management</h1>
           <p>Manage your product collection</p>
         </div>
 
@@ -64,8 +64,8 @@
       <!-- ── Toolbar ── -->
       <section class="toolbar">
         <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="searchInput" class="search-input" placeholder="Search products…" autocomplete="off" />
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
         <a href="/admin/products/add" class="add-btn">+ Add Product</a>
       </section>
@@ -107,27 +107,28 @@
                   <% } %>
                 </div>
 
-                <!-- Stock info -->
-                <div class="stock-info">
-                  <span class="stock-label">Stock:</span>
-                  <% if (product.stock <= 0) { %>
-                    <span class="stock-badge stock-badge--out">Out of Stock</span>
-                  <% } else if (product.stock < 5) { %>
-                    <span class="stock-badge stock-badge--low">Low Stock (<%= product.stock %> left)</span>
-                  <% } else { %>
-                    <span class="stock-badge stock-badge--in"><%= product.stock %> Units</span>
-                  <% } %>
-                </div>
 
-                <!-- Status toggle -->
+
+                <!-- Status toggles -->
                 <div class="product-status">
-                  <span class="status-label">Listed</span>
-                  <form action="/admin/products/toggle-status/<%= product._id %>" method="POST" class="toggle-form">
-                    <label class="toggle-switch">
-                      <input type="checkbox" class="toggle-input" <%= product.isListed ? 'checked' : '' %> />
-                      <span class="toggle-track"></span>
-                    </label>
-                  </form>
+                  <div class="status-item">
+                    <span class="status-label">Listed</span>
+                    <form action="/admin/products/toggle-status/<%= product._id %>" method="POST" class="toggle-form">
+                      <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" <%= product.isListed ? 'checked' : '' %> />
+                        <span class="toggle-track"></span>
+                      </label>
+                    </form>
+                  </div>
+                  <div class="status-item">
+                    <span class="status-label">Featured</span>
+                    <form action="/admin/products/toggle-featured/<%= product._id %>" method="POST" class="toggle-form">
+                      <label class="toggle-switch toggle-switch--featured">
+                        <input type="checkbox" class="toggle-input" <%= product.isFeatured ? 'checked' : '' %> />
+                        <span class="toggle-track"></span>
+                      </label>
+                    </form>
+                  </div>
                 </div>
 
                 <!-- Actions -->
@@ -184,5 +185,6 @@
   </div>
 
   <script src="/js/admin/products/list.js"></script>
+  <%- include('../partials/loader') %>
 </body>
 </html>

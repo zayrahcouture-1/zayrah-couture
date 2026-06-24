@@ -1,0 +1,77 @@
+<!-- ── Loading Overlay ── -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner-container">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Processing, please wait...</div>
+  </div>
+</div>
+
+<style>
+/* ---- Loading Overlay Styles ---- */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 27, 23, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: none;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.loading-overlay.show {
+  display: grid;
+  opacity: 1;
+}
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #a06a45; /* warm accent color matching Zayrah Couture */
+  border-radius: 50%;
+  animation: spinLoader 1s linear infinite;
+}
+.loading-text {
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(35, 27, 23, 0.3);
+}
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const loader = document.getElementById('loadingOverlay');
+  if (!loader) return;
+
+  // Listen to all forms on the page
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', (e) => {
+      // Check HTML5 validity first
+      if (form.checkValidity && !form.checkValidity()) {
+        return;
+      }
+      
+      // Defer overlay activation to next event loop tick to allow client-side validation scripts
+      // to run and potentially call e.preventDefault() first
+      setTimeout(() => {
+        if (!e.defaultPrevented) {
+          loader.classList.add('show');
+        }
+      }, 0);
+    });
+  });
+});
+</script>

@@ -437,41 +437,60 @@ select.field__input {
   position: relative;
   border: 1.5px solid var(--line);
   background: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.upload-preview-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-2);
 }
 .upload-preview-item img {
   width: 100%; height: 100%;
   object-fit: cover;
 }
-.upload-preview-item__actions {
+.upload-preview-item__btn--delete {
   position: absolute;
-  inset: 0;
-  background: rgba(35, 27, 23, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity .2s ease;
-  z-index: 3;
-}
-.upload-preview-item:hover .upload-preview-item__actions {
-  opacity: 1;
-}
-.upload-preview-item__btn {
-  width: 26px; height: 26px;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 0;
+  background: rgba(138, 47, 47, 0.9);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: transform .2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: transform 0.2s, background 0.2s;
+  z-index: 5;
 }
-.upload-preview-item__btn:hover { transform: scale(1.15); }
-.upload-preview-item__btn--delete { color: var(--red); }
-.upload-preview-item__btn--crop { color: var(--accent-2); }
+.upload-preview-item__btn--delete:hover {
+  transform: scale(1.1);
+  background: rgba(138, 47, 47, 1);
+}
+.upload-preview-item__btn--delete svg {
+  width: 10px;
+  height: 10px;
+}
+.upload-preview-item--plus {
+  border: 1.5px dashed var(--accent-2);
+  background: rgba(160, 106, 69, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-preview-item--plus:hover {
+  background: rgba(160, 106, 69, 0.08);
+  border-style: solid;
+}
+.upload-preview-item__plus-inner {
+  color: var(--accent-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* ── Toggle Switches ── */
 .toggles-row {
@@ -702,6 +721,7 @@ select.field__input {
 @media (max-width: 720px) {
   .topbar__title h1 { font-size: 1.7rem; }
   .form-grid { grid-template-columns: 1fr; gap: 24px; }
+  .fields-row { grid-template-columns: 1fr; gap: 16px; }
   .toggles-row { grid-template-columns: 1fr; gap: 20px; }
   .form-actions { flex-direction: column-reverse; }
   .btn { width: 100%; justify-content: center; }

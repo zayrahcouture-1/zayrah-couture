@@ -29,8 +29,8 @@
 
       <nav class="sidebar__nav">
         <a href="/admin/dashboard" class="nav-link">Overview</a>
-        <a href="/admin/products" class="nav-link">Products</a>
-        <a href="/admin/categories" class="nav-link active">Categories</a>
+        <a href="/admin/products" class="nav-link">Product Management</a>
+        <a href="/admin/categories" class="nav-link active">Category Management</a>
         <a href="#" class="nav-link">Settings</a>
       </nav>
     </aside>
@@ -49,7 +49,7 @@
         </button>
 
         <div class="topbar__title">
-          <h1>Categories</h1>
+          <h1>Category Management</h1>
           <p>Manage your product categories</p>
         </div>
 
@@ -65,8 +65,8 @@
       <!-- ── Toolbar ── -->
       <section class="toolbar">
         <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="searchInput" class="search-input" placeholder="Search categories…" autocomplete="off" />
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
         <a href="/admin/categories/add" class="add-btn">+ Add Category</a>
       </section>
@@ -173,5 +173,6 @@
   </div>
 
   <script src="/js/admin/categories/list.js"></script>
+  <%- include('../partials/loader') %>
 </body>
 </html>

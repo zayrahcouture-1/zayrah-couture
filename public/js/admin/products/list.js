@@ -101,10 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.style.transition = 'opacity .4s ease, transform .4s ease';
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(-20px) scale(0.95)';
-      toast.addEventListener('transitionend', () => {
+      setTimeout(() => {
         toast.remove();
-      }, { once: true });
-    }, 4000);
+      }, 400);
+    }, 3000);
   }
 
 });

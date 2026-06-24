@@ -42,6 +42,12 @@ router.post(
   productController.toggleProductStatus
 );
 
+router.post(
+  "/products/toggle-featured/:id",
+  isAdmin,
+  productController.toggleProductFeatured
+);
+
 router.get(
   "/products/edit/:id",
   isAdmin,
