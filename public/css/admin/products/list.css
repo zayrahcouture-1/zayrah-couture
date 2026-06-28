@@ -120,6 +120,9 @@ body {
   min-width: 0;
   word-break: break-word;
 }
+.nav-link svg { opacity: 0.5; flex-shrink: 0; }
+.nav-link:hover svg,
+.nav-link.active svg { opacity: 0.85; }
 
 .nav-link:hover,
 .nav-link.active {

@@ -32,9 +32,50 @@ const addCategory = async (req, res) => {
     });
 
     if (existingCategory) {
+      if (req.file) {
+        try {
+          await cloudinary.uploader.destroy(req.file.filename);
+        } catch (cloudinaryErr) {
+          console.error("Cloudinary cleanup error:", cloudinaryErr);
+        }
+      }
       return res.render("admin/categories/add", {
         error: "Category already exists",
       });
+    }
+
+    if (isFeatured === "on") {
+      const featuredCount = await Category.countDocuments({ isFeatured: true });
+      if (featuredCount >= 5) {
+        if (req.file) {
+          try {
+            await cloudinary.uploader.destroy(req.file.filename);
+          } catch (cloudinaryErr) {
+            console.error("Cloudinary cleanup error:", cloudinaryErr);
+          }
+        }
+        return res.render("admin/categories/add", {
+          error: "Cannot feature more than 5 categories",
+        });
+      }
+    }
+
+    let variants = [];
+    if (req.body.variantNames && req.body.variantOptions) {
+      const names = Array.isArray(req.body.variantNames) ? req.body.variantNames : [req.body.variantNames];
+      const optionsList = Array.isArray(req.body.variantOptions) ? req.body.variantOptions : [req.body.variantOptions];
+
+      for (let i = 0; i < names.length; i++) {
+        const nameVal = names[i].trim();
+        const optionsString = optionsList[i] || "";
+        if (nameVal) {
+          const options = optionsString
+            .split(",")
+            .map(opt => opt.trim())
+            .filter(opt => opt.length > 0);
+          variants.push({ name: nameVal, options });
+        }
+      }
     }
 
     const categoryData = {
@@ -43,6 +84,7 @@ const addCategory = async (req, res) => {
       description,
       isFeatured: isFeatured === "on",
       isListed: isListed === "on",
+      variants,
     };
 
     if (req.file) {
@@ -114,10 +156,52 @@ const editCategory = async (req, res) => {
     });
 
     if (existingCategory) {
+      if (req.file) {
+        try {
+          await cloudinary.uploader.destroy(req.file.filename);
+        } catch (cloudinaryErr) {
+          console.error("Cloudinary cleanup error:", cloudinaryErr);
+        }
+      }
       return res.render("admin/categories/edit", {
         category,
         error: "A category with this name already exists",
       });
+    }
+
+    if (isFeatured === "on" && !category.isFeatured) {
+      const featuredCount = await Category.countDocuments({ isFeatured: true });
+      if (featuredCount >= 5) {
+        if (req.file) {
+          try {
+            await cloudinary.uploader.destroy(req.file.filename);
+          } catch (cloudinaryErr) {
+            console.error("Cloudinary cleanup error:", cloudinaryErr);
+          }
+        }
+        return res.render("admin/categories/edit", {
+          category,
+          error: "Cannot feature more than 5 categories",
+        });
+      }
+    }
+
+    let variants = [];
+    if (req.body.variantNames && req.body.variantOptions) {
+      const names = Array.isArray(req.body.variantNames) ? req.body.variantNames : [req.body.variantNames];
+      const optionsList = Array.isArray(req.body.variantOptions) ? req.body.variantOptions : [req.body.variantOptions];
+
+      for (let i = 0; i < names.length; i++) {
+        const nameVal = names[i].trim();
+        const optionsString = optionsList[i] || "";
+        if (nameVal) {
+          const options = optionsString
+            .split(",")
+            .map(opt => opt.trim())
+            .filter(opt => opt.length > 0);
+          variants.push({ name: nameVal, options });
+        }
+      }
     }
 
     category.name = name.trim();
@@ -125,6 +209,7 @@ const editCategory = async (req, res) => {
     category.description = description || "";
     category.isFeatured = isFeatured === "on";
     category.isListed = isListed === "on";
+    category.variants = variants;
 
     // Handle image: new upload replaces old
     if (req.file) {
@@ -180,6 +265,13 @@ const toggleFeatured = async (req, res) => {
 
     if (!category) {
       return res.redirect("/admin/categories?error=Category not found");
+    }
+
+    if (!category.isFeatured) {
+      const featuredCount = await Category.countDocuments({ isFeatured: true });
+      if (featuredCount >= 5) {
+        return res.redirect("/admin/categories?error=Cannot feature more than 5 categories");
+      }
     }
 
     category.isFeatured = !category.isFeatured;

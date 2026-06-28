@@ -129,8 +129,8 @@
       html += '<p class="search-results__group-title">Products</p>';
       matchedProducts.forEach((product) => {
         const price = product.salePrice
-          ? "$" + product.salePrice
-          : "$" + product.price;
+          ? "₹" + Number(product.salePrice).toLocaleString('en-IN')
+          : "₹" + Number(product.price).toLocaleString('en-IN');
         html +=
           '<a href="/product/' +
           encodeURIComponent(product.slug) +
@@ -202,30 +202,6 @@
     revealElements.forEach((el) => revealObserver.observe(el));
   } else {
     revealElements.forEach((el) => el.classList.add("is-visible"));
-  }
-
-  /* ---- Wishlist Toggle ---- */
-  document.querySelectorAll(".product-wishlist").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      btn.classList.toggle("is-active");
-      const icon = btn.querySelector("i");
-      if (icon) {
-        icon.classList.toggle("fa-regular");
-        icon.classList.toggle("fa-solid");
-      }
-    });
-  });
-
-  /* ---- Instagram Load More ---- */
-  const loadMoreBtn = document.getElementById("loadMoreInstagram");
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", () => {
-      document.querySelectorAll(".instagram-card--hidden").forEach((card) => {
-        card.classList.remove("instagram-card--hidden");
-      });
-      loadMoreBtn.style.display = "none";
-    });
   }
 
   /* ---- Newsletter Form ---- */

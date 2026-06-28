@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="contact-page" id="main-content">
+  <!-- Contact Hero -->
+  <section class="shop-hero">
+    <div class="container shop-hero__content">
+      <nav class="shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Contact</span>
+      </nav>
+      <h1 class="shop-hero__title">Contact Us</h1>
+      <p class="shop-hero__text">We are always available to help guide you through sizing, styling, and order placements.</p>
+    </div>
+  </section>
+
+  <!-- Contact Details -->
+  <section class="container" style="max-width: 900px; margin: 0 auto 80px; padding: 0 20px;">
+    <div style="background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--radius-lg); box-shadow: 0 12px 32px rgba(35, 27, 23, 0.04); overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr;">
+      
+      <!-- Left Column: Details -->
+      <div style="padding: 50px; border-right: 1.5px solid var(--line);">
+        <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--text); margin-bottom: 30px; font-weight: 400;">Connect With Us</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 32px;">
+          <!-- Phone -->
+          <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <div style="color: var(--primary); font-size: 1.4rem; padding-top: 4px;"><i class="fa-solid fa-phone"></i></div>
+            <div>
+              <h4 style="font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 6px;">Call or Message</h4>
+              <a href="tel:<%= storeSettings.phone %>" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--primary); text-decoration: none; font-weight: 500;"><%= storeSettings.phone %></a>
+              <p style="font-family: var(--font-body); font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Available Monday to Saturday, 9 AM - 6 PM</p>
+            </div>
+          </div>
+          
+          <!-- Email -->
+          <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <div style="color: var(--primary); font-size: 1.4rem; padding-top: 4px;"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <h4 style="font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 6px;">Email Inquiry</h4>
+              <a href="mailto:<%= storeSettings.email %>" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--primary); text-decoration: none; font-weight: 500;"><%= storeSettings.email %></a>
+              <p style="font-family: var(--font-body); font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">We usually respond within 12-24 hours</p>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <div style="color: var(--primary); font-size: 1.4rem; padding-top: 4px;"><i class="fa-solid fa-location-dot"></i></div>
+            <div>
+              <h4 style="font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 6px;">Corporate Address</h4>
+              <p style="font-family: var(--font-body); font-size: 1.05rem; color: var(--text); margin: 0; font-weight: 500;"><%= storeSettings.address %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column: Interactive Quick Actions -->
+      <div style="padding: 50px; background: rgba(200, 213, 192, 0.05); display: flex; flex-direction: column; justify-content: center; gap: 24px;">
+        <h3 style="font-family: var(--font-display); font-size: 1.4rem; color: var(--text); margin-bottom: 10px; font-weight: 400;">Quick Actions</h3>
+        <p style="font-family: var(--font-body); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px;">Select one of our primary instant-contact channels to chat directly with our couture assistants.</p>
+        
+        <!-- WhatsApp Action -->
+        <% if (storeSettings.whatsapp) { %>
+          <a 
+            href="<%= storeSettings.whatsapp %>" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: var(--radius-sm); background: #25d366; color: white; font-family: var(--font-body); font-weight: 600; text-decoration: none; font-size: 0.95rem; text-align: center; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); transition: transform 0.2s;"
+            onmouseover="this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.transform='none'"
+          >
+            <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Chat on WhatsApp
+          </a>
+        <% } %>
+        
+        <!-- Instagram Action -->
+        <% if (storeSettings.instagram) { %>
+          <a 
+            href="<%= storeSettings.instagram %>" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: var(--radius-sm); background: #e1306c; color: white; font-family: var(--font-body); font-weight: 600; text-decoration: none; font-size: 0.95rem; text-align: center; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.2); transition: transform 0.2s;"
+            onmouseover="this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.transform='none'"
+          >
+            <i class="fa-brands fa-instagram" style="font-size: 1.2rem;"></i> Follow on Instagram
+          </a>
+        <% } %>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
+
+<%- include('../partials/scripts') %>

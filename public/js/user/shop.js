@@ -258,18 +258,6 @@
     updatePriceLabels(20000);
   }
 
-  function initWishlist() {
-    document.querySelectorAll(".shop-wishlist").forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        button.classList.toggle("is-active");
-        const icon = button.querySelector("i");
-        icon?.classList.toggle("fa-regular");
-        icon?.classList.toggle("fa-solid");
-      });
-    });
-  }
-
   function initQuickView() {
     document.querySelectorAll(".shop-quick-view").forEach((button) => {
       button.addEventListener("click", () => {
@@ -322,7 +310,6 @@
   }
 
   initFilters();
-  initWishlist();
   initQuickView();
   initRecentlyViewed();
   initNewsletter();

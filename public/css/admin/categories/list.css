@@ -93,7 +93,13 @@ body {
   border-radius: 16px;
   background: transparent;
   transition: 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+.nav-link svg { opacity: 0.5; flex-shrink: 0; }
+.nav-link:hover svg,
+.nav-link.active svg { opacity: 0.85; }
 .nav-link:hover,
 .nav-link.active {
   background: rgba(58, 37, 27, 0.08);

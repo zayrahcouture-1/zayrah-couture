@@ -1,0 +1,271 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<%
+  const formatMoney = function(value) {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(Number(value || 0));
+  };
+%>
+
+<style>
+.checkout-page .form-control {
+  border: 1.5px solid rgba(47, 79, 62, 0.2) !important;
+  background-color: var(--panel-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 12px 16px !important;
+  font-family: var(--font-body) !important;
+  transition: border-color var(--transition), box-shadow var(--transition) !important;
+  color: var(--text) !important;
+}
+
+.checkout-page .form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(47, 79, 62, 0.1) !important;
+  background-color: var(--white) !important;
+}
+
+.checkout-page textarea.form-control {
+  resize: vertical !important;
+}
+</style>
+
+<main class="checkout-page" id="main-content" style="padding-bottom: 80px;">
+  <!-- Checkout Hero -->
+  <section class="shop-hero">
+    <div class="container shop-hero__content">
+      <nav class="shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/shop">Shop</a>
+        <span aria-hidden="true">/</span>
+        <span>Checkout</span>
+      </nav>
+      <h1 class="shop-hero__title">Order Checkout</h1>
+      <p class="shop-hero__text">Please provide your delivery details below to finalize your order via WhatsApp.</p>
+    </div>
+  </section>
+
+  <!-- Checkout Body Layout -->
+  <div class="container" style="max-width: 1100px; margin: 0 auto; padding: 0 20px;">
+    <div class="row g-5">
+      
+      <!-- Left Column: Delivery Address Form -->
+      <div class="col-lg-7">
+        <div style="background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--radius-lg); padding: clamp(24px, 5vw, 40px); box-shadow: 0 8px 30px rgba(47, 79, 62, 0.02);">
+          <h2 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--text); margin-bottom: 28px; font-weight: 500; border-bottom: 1.5px solid var(--line); padding-bottom: 14px;">
+            <i class="fa-solid fa-truck-delivery me-2" style="color: var(--primary);"></i> Delivery Address
+          </h2>
+          
+          <form id="checkoutForm" novalidate>
+            <!-- Full Name -->
+            <div class="mb-4">
+              <label for="fullName" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">Full Name <span style="color: #a37265;">*</span></label>
+              <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong);" />
+              <div class="invalid-feedback" id="fullNameError" style="display: none; color: #a37265; font-size: 0.82rem; margin-top: 6px; font-weight: 500;">Please enter your full name.</div>
+            </div>
+
+            <!-- Mobile Number -->
+            <div class="mb-4">
+              <label for="mobileNumber" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">Mobile Number <span style="color: #a37265;">*</span></label>
+              <input type="tel" id="mobileNumber" class="form-control" placeholder="e.g. +91 98765 43210" required style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong);" />
+              <div class="invalid-feedback" id="mobileNumberError" style="display: none; color: #a37265; font-size: 0.82rem; margin-top: 6px; font-weight: 500;">Please enter a valid mobile number.</div>
+            </div>
+
+            <!-- Alternative Mobile Number -->
+            <div class="mb-4">
+              <label for="altMobileNumber" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">Alternative Mobile Number (Optional)</label>
+              <input type="tel" id="altMobileNumber" class="form-control" placeholder="e.g. +91 98765 00000" style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong);" />
+            </div>
+
+            <!-- Street Address -->
+            <div class="mb-4">
+              <label for="streetAddress" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">Delivery Address <span style="color: #a37265;">*</span></label>
+              <textarea id="streetAddress" rows="3" class="form-control" placeholder="House/Flat No., Street, Building Name" required style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong); resize: vertical;"></textarea>
+              <div class="invalid-feedback" id="streetAddressError" style="display: none; color: #a37265; font-size: 0.82rem; margin-top: 6px; font-weight: 500;">Please enter your delivery address.</div>
+            </div>
+
+            <!-- City / Area -->
+            <div class="row">
+              <div class="col-md-7 mb-4">
+                <label for="city" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">City / Region <span style="color: #a37265;">*</span></label>
+                <input type="text" id="city" class="form-control" placeholder="City or State name" required style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong);" />
+                <div class="invalid-feedback" id="cityError" style="display: none; color: #a37265; font-size: 0.82rem; margin-top: 6px; font-weight: 500;">Please enter your city.</div>
+              </div>
+              <div class="col-md-5 mb-4">
+                <label for="zipCode" style="font-family: var(--font-body); font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 8px;">Pin Code / Zip</label>
+                <input type="text" id="zipCode" class="form-control" placeholder="e.g. 400001" style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); font-family: var(--font-body); background: var(--panel-strong);" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary Card -->
+      <div class="col-lg-5">
+        <div style="background: var(--white); border: 1.5px solid var(--line); border-radius: var(--radius-lg); padding: clamp(24px, 4vw, 36px); box-shadow: 0 8px 30px rgba(47, 79, 62, 0.02); position: sticky; top: 120px;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--text); margin-bottom: 24px; font-weight: 500; border-bottom: 1.5px solid var(--line); padding-bottom: 14px;">Order Summary</h2>
+          
+          <!-- Product Summary Row -->
+          <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line);">
+            <div style="width: 80px; height: 100px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); background: var(--panel); flex-shrink: 0;">
+              <img src="<%= product.image %>" alt="<%= product.name %>" style="width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+            <div>
+              <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.25;"><%= product.name %></h3>
+              
+              <!-- Selections list -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <% Object.entries(selections).forEach(([key, val]) => { %>
+                  <span style="font-family: var(--font-body); font-size: 0.82rem; color: var(--text-muted); font-weight: 500;"><strong style="color: var(--text);"><%= key %>:</strong> <%= val %></span>
+                <% }); %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Calculation -->
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 500; color: var(--text); padding: 8px 0;">
+              <span>Total Price</span>
+              <% if (checkoutDiscountPrice && Number(checkoutDiscountPrice) > 0) { %>
+                <span><%= formatMoney(checkoutDiscountPrice) %></span>
+              <% } else { %>
+                <span><%= formatMoney(checkoutPrice) %></span>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button 
+            type="button" 
+            id="btnConfirmWhatsApp" 
+            style="width: 100%; border: none; outline: none; border-radius: var(--radius-sm); background: #25d366; color: white; padding: 16px 20px; font-family: var(--font-body); font-weight: 600; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.25); transition: transform 0.25s, background-color 0.25s;"
+            onmouseover="this.style.backgroundColor='#20ba59'; this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.backgroundColor='#25d366'; this.style.transform='none'"
+          >
+            <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i> Confirm & Open WhatsApp
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
+
+<%- include('../partials/scripts') %>
+
+<script>
+(function() {
+  const btnConfirm = document.getElementById("btnConfirmWhatsApp");
+  const form = document.getElementById("checkoutForm");
+
+  // Inputs
+  const fullName = document.getElementById("fullName");
+  const mobileNumber = document.getElementById("mobileNumber");
+  const altMobileNumber = document.getElementById("altMobileNumber");
+  const streetAddress = document.getElementById("streetAddress");
+  const city = document.getElementById("city");
+  const zipCode = document.getElementById("zipCode");
+
+  // Errors
+  const fullNameError = document.getElementById("fullNameError");
+  const mobileNumberError = document.getElementById("mobileNumberError");
+  const streetAddressError = document.getElementById("streetAddressError");
+  const cityError = document.getElementById("cityError");
+
+  // Clear errors on input change
+  fullName.addEventListener("input", () => fullNameError.style.display = "none");
+  mobileNumber.addEventListener("input", () => mobileNumberError.style.display = "none");
+  streetAddress.addEventListener("input", () => streetAddressError.style.display = "none");
+  city.addEventListener("input", () => cityError.style.display = "none");
+
+  btnConfirm.addEventListener("click", () => {
+    let isValid = true;
+
+    // Validate Full Name
+    if (!fullName.value.trim()) {
+      fullNameError.style.display = "block";
+      fullName.focus();
+      isValid = false;
+    }
+
+    // Validate Mobile Number
+    if (!mobileNumber.value.trim() || mobileNumber.value.trim().length < 8) {
+      mobileNumberError.style.display = "block";
+      if (isValid) mobileNumber.focus();
+      isValid = false;
+    }
+
+    // Validate Street Address
+    if (!streetAddress.value.trim()) {
+      streetAddressError.style.display = "block";
+      if (isValid) streetAddress.focus();
+      isValid = false;
+    }
+
+    // Validate City
+    if (!city.value.trim()) {
+      cityError.style.display = "block";
+      if (isValid) city.focus();
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Format Selections List
+    const selections = <%- JSON.stringify(selections) %>;
+    const selectionsStr = Object.keys(selections).length > 0 
+      ? " (" + Object.entries(selections).map(([k, v]) => k + ": " + v).join(", ") + ")"
+      : "";
+
+    // Dynamic Price Formatter
+    const dynamicPrice = <%= (checkoutDiscountPrice && Number(checkoutDiscountPrice) > 0) ? checkoutDiscountPrice : checkoutPrice %>;
+    const formattedPriceStr = new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(Number(dynamicPrice));
+
+    // Construct Product Detail Section
+    const productName = "<%= product.name %>";
+    const productLink = window.location.origin + "/product/" + "<%= product.slug %>";
+
+    // Build Address Summary
+    const zipStr = zipCode.value.trim() ? " - " + zipCode.value.trim() : "";
+    const altPhoneStr = altMobileNumber.value.trim() ? " / Alt: " + altMobileNumber.value.trim() : "";
+    const addressDetails = [
+      "Name: " + fullName.value.trim(),
+      "Phone: " + mobileNumber.value.trim() + altPhoneStr,
+      "Address: " + streetAddress.value.trim() + ", " + city.value.trim() + zipStr
+    ].join("\n");
+
+    // Assemble full WhatsApp Order message
+    const message = [
+      "Hello Zayrah Couture, I would like to order:",
+      "",
+      "Item: " + productName + selectionsStr,
+      "Price: " + formattedPriceStr,
+      "Link: " + productLink,
+      "",
+      "Delivery Address Details:",
+      addressDetails
+    ].join("\n");
+
+    // Build wa.me redirect link
+    const whatsappUrl = "<%= storeSettings.whatsapp || 'https://wa.me/971501234567' %>";
+    const numberMatch = whatsappUrl.match(/wa\.me\/([^\/?]+)/);
+    const number = numberMatch ? numberMatch[1] : '971501234567';
+
+    const finalRedirectUrl = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+    window.open(finalRedirectUrl, '_blank');
+  });
+})();
+</script>

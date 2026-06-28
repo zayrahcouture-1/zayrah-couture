@@ -66,6 +66,21 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    variants: [
+      {
+        name: { type: String, required: true },
+        options: { type: [String], default: [] }
+      }
+    ],
+
+    combinations: [
+      {
+        attributes: { type: mongoose.Schema.Types.Mixed, default: {} },
+        price: { type: Number, required: true },
+        discountPrice: { type: Number, default: 0 }
+      }
+    ]
   },
   {
     timestamps: true,

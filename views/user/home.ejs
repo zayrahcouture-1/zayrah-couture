@@ -1,6 +1,16 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
+<%
+  const money = function(value) {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(Number(value || 0));
+  };
+%>
+
 <main id="main-content">
 
   <!-- Hero Section -->
@@ -24,7 +34,7 @@
           <div class="hero-images">
             <div class="hero-image hero-image--primary">
               <img
-                src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop"
+                src="<%= (storeSettings.heroImagePrimary && storeSettings.heroImagePrimary.url) ? storeSettings.heroImagePrimary.url : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop' %>"
                 alt="Elegant modest fashion model wearing Zayrah Couture"
                 loading="eager"
                 width="500"
@@ -33,7 +43,7 @@
             </div>
             <div class="hero-image hero-image--secondary">
               <img
-                src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=550&fit=crop"
+                src="<%= (storeSettings.heroImageSecondary && storeSettings.heroImageSecondary.url) ? storeSettings.heroImageSecondary.url : 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=550&fit=crop' %>"
                 alt="Premium ready-to-wear collection by Zayrah"
                 loading="eager"
                 width="400"
@@ -48,7 +58,7 @@
             <p class="hero-eyebrow">New Season</p>
             <h2 class="hero-heading">From Zayrah, With Love</h2>
             <p class="hero-description">
-              Discover curated collections inspired by feminine elegance
+              <%= storeSettings.tagline || 'Discover curated collections inspired by feminine elegance' %>
             </p>
             <a href="#collections" class="btn btn-zayrah btn-zayrah--primary">
               Explore Collection
@@ -65,6 +75,7 @@
     <div class="container">
       <header class="section-header text-center reveal-up">
         <h2 class="section-title" id="categories-heading">Featured Categories</h2>
+        <p class="section-subtitle">Explore our curated collections designed for timeless elegance.</p>
       </header>
 
       <div class="category-grid">
@@ -118,9 +129,6 @@
                 <% if (product.badge) { %>
                   <span class="product-badge product-badge--<%= product.badge.toLowerCase() %>"><%= product.badge %></span>
                 <% } %>
-                <button class="product-wishlist" aria-label="Add to wishlist" data-product-id="<%= product.id %>">
-                  <i class="fa-regular fa-heart"></i>
-                </button>
                 <div class="product-card__actions">
                   <button class="btn-quick-view" data-product="<%= product.slug %>">Quick View</button>
                 </div>
@@ -132,10 +140,10 @@
                 </h3>
                 <div class="product-card__price">
                   <% if (product.salePrice) { %>
-                    <span class="price-sale">$<%= product.salePrice %></span>
-                    <span class="price-original">$<%= product.price %></span>
+                    <span class="price-sale"><%= money(product.salePrice) %></span>
+                    <span class="price-original"><%= money(product.price) %></span>
                   <% } else { %>
-                    <span class="price-regular">$<%= product.price %></span>
+                    <span class="price-regular"><%= money(product.price) %></span>
                   <% } %>
                 </div>
               </div>
@@ -148,51 +156,12 @@
 
   <!-- Promotional Banner -->
   <section class="promo-banner" id="collections" aria-labelledby="promo-heading">
-    <div class="promo-banner__bg">
-      <img
-        src="https://images.unsplash.com/photo-1558171814-2fcedf5a6a9e?w=1600&h=600&fit=crop"
-        alt=""
-        loading="lazy"
-        aria-hidden="true"
-        width="1600"
-        height="600"
-      />
-    </div>
+    <div class="promo-banner__bg"></div>
     <div class="container">
       <div class="promo-banner__card reveal-up">
         <h2 class="promo-banner__title" id="promo-heading">Most Loved Collection</h2>
         <p class="promo-banner__text">Explore timeless designs crafted with elegance.</p>
         <a href="#collections" class="btn btn-zayrah btn-zayrah--light">View Collection</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mega Sale Section -->
-  <section class="section mega-sale-section" aria-labelledby="megasale-heading">
-    <div class="container">
-      <header class="section-header text-center reveal-up">
-        <span class="section-eyebrow">Limited Time</span>
-        <h2 class="section-title" id="megasale-heading">Mega Sale Event</h2>
-      </header>
-
-      <div class="mega-sale-track reveal-up">
-        <% megaSaleProducts.forEach(function(product) { %>
-          <article class="mega-sale-card">
-            <a href="/product/<%= product.slug %>" class="mega-sale-card__image">
-              <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy" width="350" height="450" />
-              <span class="product-badge product-badge--sale">SALE</span>
-            </a>
-            <div class="mega-sale-card__body">
-              <h3 class="mega-sale-card__name">
-                <a href="/product/<%= product.slug %>"><%= product.name %></a>
-              </h3>
-              <div class="mega-sale-card__price">
-                <span class="price-original">$<%= product.price %></span>
-                <span class="price-sale">$<%= product.salePrice || product.price %></span>
-              </div>
-            </div>
-          </article>
-        <% }); %>
       </div>
     </div>
   </section>
@@ -252,8 +221,8 @@
       </header>
 
       <div class="instagram-grid reveal-up">
-        <% instagramPosts.forEach(function(post, index) { %>
-          <a href="<%= post.link %>" class="instagram-card <%= index >= 6 ? 'instagram-card--hidden' : '' %>" target="_blank" rel="noopener noreferrer" aria-label="View Instagram post">
+        <% instagramPosts.forEach(function(post) { %>
+          <a href="<%= post.link %>" class="instagram-card" target="_blank" rel="noopener noreferrer" aria-label="View Instagram post">
             <img src="<%= post.image %>" alt="Zayrah Couture Instagram post" loading="lazy" width="400" height="400" />
             <div class="instagram-card__overlay">
               <% if (post.isReel) { %>
@@ -267,74 +236,10 @@
       </div>
 
       <div class="instagram-actions text-center reveal-up">
-        <button class="btn btn-zayrah btn-zayrah--outline" id="loadMoreInstagram">Load More</button>
         <a href="<%= storeSettings.instagram %>" class="btn btn-zayrah btn-zayrah--primary" target="_blank" rel="noopener noreferrer">
           <i class="fa-brands fa-instagram me-2"></i> Follow on Instagram
         </a>
       </div>
-    </div>
-  </section>
-
-  <!-- Newsletter Section -->
-  <section class="section newsletter-section" aria-labelledby="newsletter-heading">
-    <div class="container">
-      <div class="newsletter-card reveal-up">
-        <div class="row align-items-center g-5">
-          <div class="col-lg-6">
-            <h2 class="newsletter-card__title" id="newsletter-heading">Discover Our Latest Collection</h2>
-            <p class="newsletter-card__text">
-              Be the first to explore new arrivals, exclusive offers, and styling inspiration delivered to your inbox.
-            </p>
-            <a href="#shop" class="btn btn-zayrah btn-zayrah--primary">Shop Now</a>
-          </div>
-          <div class="col-lg-6">
-            <form class="newsletter-form" id="newsletterForm" novalidate>
-              <label for="newsletterEmail" class="visually-hidden">Email address</label>
-              <div class="newsletter-form__group">
-                <input
-                  type="email"
-                  id="newsletterEmail"
-                  class="newsletter-form__input"
-                  placeholder="Enter your email address"
-                  required
-                  autocomplete="email"
-                />
-                <button type="submit" class="btn btn-zayrah btn-zayrah--dark">Subscribe</button>
-              </div>
-              <p class="newsletter-form__note" id="newsletterMessage" role="status"></p>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonial Section -->
-  <section class="section testimonial-section" aria-labelledby="testimonial-heading">
-    <div class="container">
-      <article class="testimonial-card reveal-up">
-        <div class="testimonial-card__avatar">
-          <img
-            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&h=120&fit=crop"
-            alt="Sarah Al-Mansouri"
-            loading="lazy"
-            width="120"
-            height="120"
-          />
-        </div>
-        <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-        </div>
-        <blockquote class="testimonial-card__quote" id="testimonial-heading">
-          <p>"Zayrah Couture transformed my wardrobe. Every piece feels luxurious, thoughtfully designed, and perfectly modest. The quality and attention to detail are unmatched."</p>
-        </blockquote>
-        <cite class="testimonial-card__author">Sarah Al-Mansouri</cite>
-        <span class="testimonial-card__role">Loyal Customer, Dubai</span>
-      </article>
     </div>
   </section>
 

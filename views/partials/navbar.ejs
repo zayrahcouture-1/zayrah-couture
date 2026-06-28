@@ -34,8 +34,8 @@
           <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'shop' ? 'active' : '' %>" href="/shop">Shop</a></li>
           <li><a class="nav-link" href="/#shop">Featured</a></li>
           <li><a class="nav-link" href="/#categories">Categories</a></li>
-          <li><a class="nav-link" href="/#about">About</a></li>
-          <li><a class="nav-link" href="#contact">Contact</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'about' ? 'active' : '' %>" href="/about">About</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'contact' ? 'active' : '' %>" href="/contact">Contact</a></li>
         </ul>
       </div>
 
@@ -44,11 +44,10 @@
         <ul class="zayrah-nav__links zayrah-nav__links--mobile">
           <li><a class="nav-link <%= typeof pageName === 'undefined' || pageName === 'home' ? 'active' : '' %>" href="/">Home</a></li>
           <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'shop' ? 'active' : '' %>" href="/shop">Shop</a></li>
-          <li><a class="nav-link" href="/#shop">New Arrivals</a></li>
-          <li><a class="nav-link" href="/#collections">Collections</a></li>
+          <li><a class="nav-link" href="/#shop">Featured</a></li>
           <li><a class="nav-link" href="/#categories">Categories</a></li>
-          <li><a class="nav-link" href="/#about">About</a></li>
-          <li><a class="nav-link" href="#contact">Contact</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'about' ? 'active' : '' %>" href="/about">About</a></li>
+          <li><a class="nav-link <%= typeof pageName !== 'undefined' && pageName === 'contact' ? 'active' : '' %>" href="/contact">Contact</a></li>
         </ul>
       </div>
     </div>

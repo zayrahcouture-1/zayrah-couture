@@ -195,6 +195,46 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCharCount(); // init
 
 
+  /* ---- Dynamic Category Variants ---- */
+  const addVariantBtn = document.getElementById('addVariantBtn');
+  const variantsContainer = document.getElementById('variantsContainer');
+
+  addVariantBtn?.addEventListener('click', () => {
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.style.display = 'flex';
+    row.style.gap = '12px';
+    row.style.alignItems = 'center';
+    row.style.background = 'rgba(255, 255, 255, 0.4)';
+    row.style.padding = '12px';
+    row.style.borderRadius = '12px';
+    row.style.border = '1px solid var(--line)';
+
+    row.innerHTML = `
+      <div style="flex: 1;">
+        <input type="text" name="variantNames[]" class="field__input" placeholder="Variant Name (e.g. Size)" required style="background: var(--panel-strong);" />
+      </div>
+      <div style="flex: 2;">
+        <input type="text" name="variantOptions[]" class="field__input" placeholder="Options (comma separated, e.g. S, M, L)" required style="background: var(--panel-strong);" />
+      </div>
+      <button type="button" class="remove-variant-btn" style="background: none; border: none; color: var(--red); cursor: pointer; padding: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+
+    row.querySelector('.remove-variant-btn').addEventListener('click', () => {
+      row.remove();
+    });
+
+    variantsContainer.appendChild(row);
+  });
+
+  document.querySelectorAll('.remove-variant-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.currentTarget.closest('.variant-row').remove();
+    });
+  });
+
   /* ---- Client-Side Form Validation ---- */
   const form      = document.getElementById('categoryForm');
   const nameInput = document.getElementById('categoryName');

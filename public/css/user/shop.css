@@ -8,10 +8,13 @@
 
 .shop-hero {
   position: relative;
-  min-height: 460px;
+  background-color: var(--primary);
+  background-image: radial-gradient(circle at 80% 20%, rgba(217, 198, 165, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 80%, rgba(200, 213, 192, 0.1) 0%, transparent 60%);
+  min-height: 280px;
   display: flex;
   align-items: flex-end;
-  padding: 180px 0 72px;
+  padding: 130px 0 52px;
   overflow: hidden;
   color: var(--white);
 }
@@ -81,8 +84,7 @@
 }
 
 .shop-sidebar {
-  position: sticky;
-  top: 132px;
+  position: relative;
 }
 
 .shop-filter-panel {
@@ -818,7 +820,7 @@
 
 @media (max-width: 767.98px) {
   .shop-hero {
-    min-height: 390px;
+    min-height: 240px;
     padding: 132px 0 52px;
   }
 
@@ -829,13 +831,11 @@
   }
 
   .shop-toolbar {
-    position: sticky;
-    top: 72px;
-    z-index: 20;
+    position: relative;
     align-items: stretch;
     padding: 12px 0;
-    background: rgba(253, 251, 248, 0.96);
-    backdrop-filter: blur(12px);
+    background: transparent;
+    backdrop-filter: none;
   }
 
   .shop-sort {

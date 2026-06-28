@@ -1,0 +1,358 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<style>
+.about-page {
+  padding-top: 0;
+}
+
+
+
+.about-eyebrow,
+.section-label {
+  display: inline-block;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 14px;
+}
+
+.about-story {
+  max-width: 1120px;
+  margin: 0 auto clamp(60px, 8vw, 90px);
+  padding: 0 20px;
+}
+
+.about-story__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.about-story__media {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 20px 40px rgba(35, 27, 23, 0.08);
+  border: 1px solid var(--line);
+}
+
+.about-story__media img {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  max-height: 560px;
+  object-fit: cover;
+  display: block;
+}
+
+.about-story__content h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  color: var(--text);
+  margin: 0 0 22px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.about-story__content p {
+  font-family: var(--font-body);
+  line-height: 1.85;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+  font-size: 0.98rem;
+}
+
+.about-highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  border-top: 1.5px solid var(--line);
+  margin-top: 28px;
+  padding-top: 24px;
+}
+
+.about-highlight {
+  background: rgba(200, 213, 192, 0.06);
+  border: 1px solid rgba(47, 79, 62, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  transition: background var(--transition);
+}
+
+.about-highlight:hover {
+  background: rgba(200, 213, 192, 0.12);
+}
+
+.about-highlight h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+
+.about-highlight p {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-values {
+  background: rgba(35, 27, 23, 0.02);
+  padding: clamp(60px, 8vw, 88px) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.about-values .container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.about-values__head {
+  max-width: 720px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.about-values__head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  color: var(--text);
+  margin: 0 0 14px;
+  font-weight: 400;
+}
+
+.about-values__head p {
+  font-family: var(--font-body);
+  font-size: 0.96rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin: 0 auto;
+}
+
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.about-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 30px rgba(47, 79, 62, 0.03);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.about-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(47, 79, 62, 0.08);
+  border-color: var(--primary);
+}
+
+.about-card__icon {
+  color: var(--primary);
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.about-card h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.about-card p {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (max-width: 992px) {
+  .about-story__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-story__media {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .about-story__content {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .about-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+
+  .about-hero {
+    margin-bottom: 52px;
+  }
+
+  .about-story {
+    margin-bottom: 60px;
+  }
+
+  .about-story__media img {
+    min-height: 360px;
+    max-height: 460px;
+  }
+
+  .about-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .about-card {
+    padding: 22px 20px;
+  }
+}
+
+@media (max-width: 560px) {
+
+  .about-story,
+  .about-values .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .about-eyebrow,
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+
+  .about-story__content p,
+  .about-values__head p,
+  .about-card p {
+    font-size: 0.92rem;
+  }
+
+  .about-story__media {
+    border-radius: 18px;
+  }
+
+  .about-story__media img {
+    min-height: 300px;
+    max-height: 380px;
+  }
+
+  .about-highlight {
+    padding: 16px;
+  }
+}
+</style>
+
+<main class="about-page" id="main-content">
+  <!-- About Hero -->
+  <section class="shop-hero">
+    <div class="container shop-hero__content">
+      <nav class="shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>About</span>
+      </nav>
+      <h1 class="shop-hero__title">About Zayrah Couture</h1>
+      <p class="shop-hero__text"><%= storeSettings.tagline %></p>
+    </div>
+  </section>
+
+  <!-- Our Story -->
+  <section class="about-story">
+    <div class="about-story__grid">
+      <!-- Left Column: Image -->
+      <div class="about-story__media">
+        <img 
+          src="<%= (storeSettings.heroImageSecondary && storeSettings.heroImageSecondary.url) ? storeSettings.heroImageSecondary.url : 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=550&fit=crop' %>" 
+          alt="Zayrah Couture Story" 
+        />
+      </div>
+      
+      <!-- Right Column: Content -->
+      <div class="about-story__content">
+        <span class="section-label">Our Philosophy</span>
+        <h2>The Philosophy of Modest Luxury</h2>
+        <p>
+          Founded on the principle of sophisticated modesty, <strong>Zayrah Couture</strong> curates luxury Abayas and modest wear for the modern woman. We believe garments should carry both contemporary grace and traditional values, expressing elegance without compromise.
+        </p>
+        <p>
+          Every silhouette is drafted with precise details, combining sleek lines, subtle hand-embroidery, and high-quality fabrics sourced from trusted textile artisans.
+        </p>
+        
+        <!-- Craft Details Cards -->
+        <div class="about-highlights">
+          <div class="about-highlight">
+            <h4>Handcrafted Quality</h4>
+            <p>Carefully drafted lines and bespoke hand-embroidery details.</p>
+          </div>
+          <div class="about-highlight">
+            <h4>Premium Fabrics</h4>
+            <p>Sourced luxury fabrics chosen for weight, breathability, and drape.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Care Instructions & Info -->
+  <section class="about-values">
+    <div class="container">
+      <div class="about-values__head">
+        <span class="section-label">Garment Care</span>
+        <h3>Sourcing & Quality Philosophy</h3>
+        <p>We maintain an uncompromising dedication to quality, materials, and execution, ensuring every piece is built to last.</p>
+      </div>
+      
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-circle-check"></i></div>
+          <h4>Quality Control</h4>
+          <p>Every thread and stitch is verified by our couture team in Dubai before dispatch.</p>
+        </div>
+        
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-droplet"></i></div>
+          <h4>Premium Sourcing</h4>
+          <p>We use premium grade Nida, Japanese crepe, and linen fabrics for the perfect fall and weight.</p>
+        </div>
+        
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-shirt"></i></div>
+          <h4>Dry Clean Preferred</h4>
+          <p>To preserve delicate beadwork and embroidery, dry cleaning or handwashing is recommended.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
+
+<%- include('../partials/scripts') %>

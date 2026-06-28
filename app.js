@@ -10,6 +10,7 @@ const authRoutes = require("./routes/admin/Auth.js");
 const dashboardRoutes = require("./routes/admin/Dashboard.js");
 const categoryRoutes = require("./routes/admin/Category");
 const productRoutes = require("./routes/admin/Product");
+const settingsRoutes = require("./routes/admin/Settings");
 const homeRoutes = require("./routes/user/Home");
 
 const app = express();
@@ -46,6 +47,7 @@ app.use("/admin", authRoutes);
 app.use("/admin", dashboardRoutes);
 app.use("/admin", categoryRoutes);
 app.use("/admin", productRoutes);
+app.use("/admin", settingsRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

@@ -24,16 +24,6 @@
 
 <main class="shop-page" id="main-content">
   <section class="shop-hero" aria-labelledby="shop-heading">
-    <img
-      src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1800&h=720&fit=crop"
-      alt=""
-      class="shop-hero__image"
-      loading="eager"
-      width="1800"
-      height="720"
-      aria-hidden="true"
-    />
-    <div class="shop-hero__overlay"></div>
     <div class="container shop-hero__content">
       <nav class="shop-breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a>
@@ -143,10 +133,6 @@
                   <% if (!inStock) { %>
                     <span class="shop-stock-badge">Out of Stock</span>
                   <% } %>
-                  <button class="shop-wishlist" type="button" aria-label="Add <%= product.name %> to wishlist">
-                    <i class="fa-regular fa-heart"></i>
-                    <span>Wishlist</span>
-                  </button>
                   <button class="shop-quick-view" type="button" data-quick-view="<%= product.slug %>">
                     Quick View
                   </button>
@@ -199,51 +185,6 @@
     </div>
   </section>
 
-  <section class="section recently-viewed" aria-labelledby="recently-viewed-heading">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title" id="recently-viewed-heading">Recently Viewed</h2>
-      </div>
-      <div class="swiper recently-viewed-slider">
-        <div class="swiper-wrapper">
-          <% safeFeaturedProducts.forEach(function(product) { %>
-            <article class="swiper-slide recent-card">
-              <a href="/product/<%= product.slug %>">
-                <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy" width="260" height="330" />
-                <span class="recent-card__name"><%= product.name %></span>
-                <span class="recent-card__price"><%= money(product.salePrice || product.price) %></span>
-              </a>
-            </article>
-          <% }); %>
-        </div>
-        <div class="recently-viewed__controls">
-          <button class="recently-viewed__btn recently-viewed__btn--prev" type="button" aria-label="Previous recently viewed product">
-            <i class="fa-solid fa-arrow-left"></i>
-          </button>
-          <button class="recently-viewed__btn recently-viewed__btn--next" type="button" aria-label="Next recently viewed product">
-            <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section shop-newsletter" aria-labelledby="shop-newsletter-heading">
-    <div class="container">
-      <div class="shop-newsletter__inner">
-        <div>
-          <h2 id="shop-newsletter-heading">Join The Zayrah Community</h2>
-          <p>Get updates on new arrivals, exclusive collections, and offers.</p>
-        </div>
-        <form class="shop-newsletter__form" id="shopNewsletterForm" novalidate>
-          <label class="visually-hidden" for="shopNewsletterEmail">Email address</label>
-          <input type="email" id="shopNewsletterEmail" placeholder="Email address" autocomplete="email" required />
-          <button class="btn btn-zayrah btn-zayrah--primary" type="submit">Subscribe</button>
-          <p class="shop-newsletter__message" id="shopNewsletterMessage" role="status"></p>
-        </form>
-      </div>
-    </div>
-  </section>
 </main>
 
 <div

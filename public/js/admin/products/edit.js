@@ -375,6 +375,182 @@ document.addEventListener('DOMContentLoaded', () => {
 
   discountInput?.addEventListener('input', () => discountField.classList.remove('field--error'));
 
+  /* ---- Dynamic Category Variants ---- */
+  const productCategorySelect = document.getElementById('productCategory');
+  const variantsContainer = document.getElementById('variantsContainer');
+  const combinationsTableContainer = document.getElementById('combinationsTableContainer');
+
+  function renderCategoryVariants() {
+    if (!variantsContainer) return;
+    variantsContainer.innerHTML = '';
+    if (combinationsTableContainer) combinationsTableContainer.innerHTML = '';
+
+    const catId = productCategorySelect.value;
+    if (!catId) return;
+
+    const category = categoriesData.find(c => c._id === catId);
+    if (!category || !category.variants || category.variants.length === 0) return;
+
+    category.variants.forEach((v, index) => {
+      const fieldDiv = document.createElement('div');
+      fieldDiv.className = 'field';
+      fieldDiv.id = `variantField_${index}`;
+      fieldDiv.dataset.variantName = v.name;
+
+      const existingVar = productVariantsData.find(pv => pv.name === v.name);
+      const existingOptions = existingVar ? existingVar.options : [];
+
+      let checkboxOptionsHTML = '';
+      v.options.forEach(opt => {
+        const isChecked = existingOptions.includes(opt) ? 'checked' : '';
+        checkboxOptionsHTML += `
+          <label class="size-checkbox-btn">
+            <input type="checkbox" name="productVariants[${v.name}][]" value="${opt}" ${isChecked} />
+            <span class="size-text">${opt}</span>
+          </label>
+        `;
+      });
+
+      fieldDiv.innerHTML = `
+        <label class="field__label">${v.name} Options <span class="required">*</span></label>
+        <div class="size-checkbox-group">
+          ${checkboxOptionsHTML}
+        </div>
+        <span class="field__error-msg">Please select at least one option for ${v.name}</span>
+      `;
+
+      fieldDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          fieldDiv.classList.remove('field--error');
+          buildCombinationsTable();
+        });
+      });
+
+      variantsContainer.appendChild(fieldDiv);
+    });
+
+    buildCombinationsTable();
+  }
+
+  function getCombinations(optionsObj) {
+    const keys = Object.keys(optionsObj);
+    if (keys.length === 0) return [];
+    
+    let results = [{}];
+    keys.forEach(key => {
+      const values = optionsObj[key];
+      const nextResults = [];
+      results.forEach(res => {
+        values.forEach(val => {
+          nextResults.push({
+            ...res,
+            [key]: val
+          });
+        });
+      });
+      results = nextResults;
+    });
+    return results;
+  }
+
+  function findExistingCombination(comb) {
+    if (typeof productCombinationsData === 'undefined' || !productCombinationsData.length) return null;
+    return productCombinationsData.find(saved => {
+      const savedKeys = Object.keys(saved.attributes || {});
+      const combKeys = Object.keys(comb);
+      if (savedKeys.length !== combKeys.length) return false;
+      return combKeys.every(k => saved.attributes[k] === comb[k]);
+    });
+  }
+
+  function buildCombinationsTable() {
+    if (!combinationsTableContainer) return;
+    combinationsTableContainer.innerHTML = '';
+
+    const checkedByVariant = {};
+    const fields = variantsContainer.querySelectorAll('.field');
+    fields.forEach(field => {
+      const varName = field.dataset.variantName;
+      const checked = Array.from(field.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      if (checked.length > 0) {
+        checkedByVariant[varName] = checked;
+      }
+    });
+
+    const expectedVariantsCount = fields.length;
+    const actualCheckedVariantsCount = Object.keys(checkedByVariant).length;
+    
+    if (expectedVariantsCount === 0 || actualCheckedVariantsCount < expectedVariantsCount) {
+      return;
+    }
+
+    const combinationsList = getCombinations(checkedByVariant);
+    if (combinationsList.length === 0) return;
+
+    let tableHTML = `
+      <label class="field__label" style="font-weight: 600;">Variant Prices & Combinations <span class="required">*</span></label>
+      <div style="overflow-x: auto; margin-top: 10px; border: 1.5px solid var(--line); border-radius: 12px; background: rgba(255, 255, 255, 0.45); padding: 8px;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1.5px solid var(--line); background: rgba(0,0,0,0.02);">
+              <th style="padding: 12px; font-weight: 600; color: var(--text);">Combination Attributes</th>
+              <th style="padding: 12px; font-weight: 600; color: var(--text); width: 160px;">Price ($)</th>
+              <th style="padding: 12px; font-weight: 600; color: var(--text); width: 160px;">Discount Price ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    combinationsList.forEach((comb, idx) => {
+      const label = Object.entries(comb).map(([k, v]) => `${k}: ${v}`).join(', ');
+      const existing = findExistingCombination(comb);
+      
+      const defaultPrice = document.getElementById('productPrice')?.value || 0;
+      const defaultDiscount = document.getElementById('productDiscountPrice')?.value || 0;
+
+      const priceVal = existing ? existing.price : defaultPrice;
+      const discountVal = existing ? existing.discountPrice : defaultDiscount;
+
+      let hiddenAttributesHTML = '';
+      Object.entries(comb).forEach(([k, v]) => {
+        hiddenAttributesHTML += `<input type="hidden" name="combinations[${idx}][attributes][${k}]" value="${v}" />`;
+      });
+
+      tableHTML += `
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 12px; font-weight: 500; color: var(--text);">${label}${hiddenAttributesHTML}</td>
+          <td style="padding: 6px 12px;">
+            <input type="number" name="combinations[${idx}][price]" class="field__input" value="${priceVal}" min="0" step="0.01" required style="padding: 8px 12px; font-size: 0.9rem; background: var(--panel-strong);" />
+          </td>
+          <td style="padding: 6px 12px;">
+            <input type="number" name="combinations[${idx}][discountPrice]" class="field__input" value="${discountVal}" min="0" step="0.01" style="padding: 8px 12px; font-size: 0.9rem; background: var(--panel-strong);" />
+          </td>
+        </tr>
+      `;
+    });
+
+    tableHTML += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    combinationsTableContainer.innerHTML = tableHTML;
+  }
+
+  productCategorySelect?.addEventListener('change', renderCategoryVariants);
+  renderCategoryVariants();
+
+  const defaultPriceInput = document.getElementById('productPrice');
+  const defaultDiscountInput = document.getElementById('productDiscountPrice');
+  
+  defaultPriceInput?.addEventListener('input', () => {
+    buildCombinationsTable();
+  });
+  defaultDiscountInput?.addEventListener('input', () => {
+    buildCombinationsTable();
+  });
+
   form?.addEventListener('submit', (e) => {
     let isValid = true;
 
@@ -409,6 +585,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+
+    // Validate Dynamic Category Variants
+    if (variantsContainer) {
+      const variantFields = variantsContainer.querySelectorAll('.field');
+      variantFields.forEach(field => {
+        const checkedOptions = field.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedOptions.length === 0) {
+          field.classList.add('field--error');
+          isValid = false;
+        } else {
+          field.classList.remove('field--error');
+        }
+      });
+
+      if (variantFields.length > 0 && (!combinationsTableContainer || !combinationsTableContainer.querySelector('table'))) {
+        isValid = false;
+      }
+    }
 
     // Validate Total Images Count (must have at least 3 images total)
     if (activeExistingCount + selectedFiles.length < 3) {

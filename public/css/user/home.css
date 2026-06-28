@@ -20,7 +20,8 @@
   --shadow-md: 0 8px 40px rgba(47, 79, 62, 0.1);
   --shadow-lg: 0 20px 60px rgba(47, 79, 62, 0.12);
   --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --font-heading: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-heading: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-body: "Inter", "Poppins", system-ui, sans-serif;
 }
 
@@ -952,19 +953,9 @@ button {
 .promo-banner__bg {
   position: absolute;
   inset: 0;
-}
-
-.promo-banner__bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.promo-banner__bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(47, 79, 62, 0.35);
+  background-color: var(--primary);
+  background-image: radial-gradient(circle at 80% 20%, rgba(217, 198, 165, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 80%, rgba(200, 213, 192, 0.1) 0%, transparent 60%);
 }
 
 .promo-banner__card {
@@ -1218,7 +1209,7 @@ button {
 /* ---- Instagram ---- */
 .instagram-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 40px;
 }

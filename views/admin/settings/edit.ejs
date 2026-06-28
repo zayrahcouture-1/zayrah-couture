@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zayrah | Store Settings</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1" />
+  <!-- Reusing Category Edit CSS for styling consistency -->
+  <link rel="stylesheet" href="/css/admin/categories/edit.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+  <style>
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* Tabs Navigation styling */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+      border-bottom: 1.5px solid rgba(200, 213, 192, 0.3);
+      padding-bottom: 8px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 10px 20px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s ease;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .tab-btn:hover {
+      color: var(--primary);
+      background: rgba(200, 213, 192, 0.15);
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+      background: rgba(200, 213, 192, 0.25);
+      font-weight: 600;
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -9.5px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .tabs-dropdown-container {
+      display: none;
+      margin-bottom: 24px;
+    }
+    
+    .tabs-dropdown {
+      width: 100%;
+      padding: 12px 36px 12px 16px;
+      border: 1.5px solid rgba(47, 79, 62, 0.2);
+      border-radius: 12px;
+      background-color: rgba(200, 213, 192, 0.25);
+      color: var(--primary);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f4f3e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 16px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .tabs-dropdown:hover,
+    .tabs-dropdown:focus {
+      background-color: rgba(200, 213, 192, 0.4);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(47, 79, 62, 0.1);
+    }
+    
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .tab-pane.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 768px) {
+      .tabs-nav {
+        display: none;
+      }
+      .tabs-dropdown-container {
+        display: block;
+      }
+    }
+
+    /* Instagram Feed Grid Styling */
+    .instagram-feed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .instagram-feed-card {
+      background: var(--panel-strong);
+      border: 1px solid rgba(200, 213, 192, 0.4);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .instagram-feed-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(200, 213, 192, 0.8);
+    }
+    
+    .instagram-feed-card__title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 1px solid rgba(200, 213, 192, 0.3);
+      padding-bottom: 8px;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .instagram-feed-card__badge {
+      font-size: 0.75rem;
+      background: rgba(200, 213, 192, 0.3);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+    
+    .instagram-feed-card__preview {
+      width: 100%;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eae3db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1.5px dashed rgba(200, 213, 192, 0.6);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .instagram-feed-card__preview:hover {
+      border-color: var(--primary);
+      background: #f0e9df;
+    }
+    
+    .instagram-feed-card__preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .instagram-feed-card__placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .instagram-feed-card__remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(35, 27, 23, 0.75);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .instagram-feed-card__remove:hover {
+      background: var(--red);
+      transform: scale(1.05);
+    }
+
+    .drag-active {
+      border-color: var(--primary) !important;
+      background: rgba(200, 213, 192, 0.15) !important;
+    }
+
+    /* Readonly Form styling */
+    fieldset[disabled] .upload-zone {
+      cursor: not-allowed !important;
+      opacity: 0.65;
+    }
+    fieldset[disabled] .instagram-feed-card__preview {
+      cursor: not-allowed !important;
+      opacity: 0.65;
+    }
+    fieldset[disabled] .upload-zone__remove,
+    fieldset[disabled] .instagram-feed-card__remove,
+    fieldset[disabled] .switch-toggle {
+      display: none !important;
+    }
+    fieldset[disabled] .field__input, 
+    fieldset[disabled] .field__wrap {
+      background-color: var(--bg-hover) !important;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand">
+        <div class="brand-mark">Z</div>
+        <div>
+          <h2><span class="brand-name">Zayrah</span> Dashboard</h2>
+          <p>Admin panel</p>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <a href="/admin/dashboard" class="nav-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Overview
+        </a>
+        <a href="/admin/products" class="nav-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Product Management
+        </a>
+        <a href="/admin/categories" class="nav-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          Category Management
+        </a>
+        <a href="/admin/settings" class="nav-link active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </a>
+        <a href="/admin/logout" class="nav-link" style="color: var(--red); border: 1px solid rgba(138, 47, 47, 0.2); background: rgba(138, 47, 47, 0.04); margin-top: 20px; font-weight: 600;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-right: 8px; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
+      </nav>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="topbar__title">
+          <h1>Store Settings</h1>
+          <p>Configure your storefront options and hero section assets</p>
+        </div>
+      </header>
+
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/admin/dashboard" class="breadcrumb__link">Dashboard</a>
+        <span class="breadcrumb__sep">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+        <span class="breadcrumb__current">Store Settings</span>
+      </nav>
+
+      <!-- Form Card -->
+      <section class="form-card">
+        <div class="form-card__header">
+          <div class="form-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <div>
+            <h2 class="form-card__title">Store Configurations</h2>
+            <p class="form-card__subtitle">Modify store settings, links, and hero banners</p>
+          </div>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="alert alert--success" style="margin-bottom: 24px; background: rgba(47, 79, 62, 0.08); color: var(--primary); border: 1px solid rgba(47, 79, 62, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><%= success %></span>
+          </div>
+        <% } %>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert--error">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span><%= error %></span>
+          </div>
+        <% } %>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+          <button type="button" class="tab-btn active" data-tab="hero-section">Hero Section</button>
+          <button type="button" class="tab-btn" data-tab="store-details">Store Details</button>
+          <button type="button" class="tab-btn" data-tab="instagram-feed">Instagram Feed</button>
+          <button type="button" class="tab-btn" data-tab="common-product-details">Common Product Details</button>
+        </div>
+
+        <div class="tabs-dropdown-container">
+          <select id="tabsDropdown" class="tabs-dropdown">
+            <option value="hero-section">Hero Section</option>
+            <option value="store-details">Store Details</option>
+            <option value="instagram-feed">Instagram Feed</option>
+            <option value="common-product-details">Common Product Details</option>
+          </select>
+        </div>
+
+        <form action="/admin/settings" method="POST" enctype="multipart/form-data" id="settingsForm">
+          <fieldset id="settingsFieldset" disabled style="border: 0; padding: 0; margin: 0; min-width: 0;">
+
+          <!-- Pane 1: Hero Section -->
+          <div class="tab-pane active" id="tab-hero-section">
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">Hero Section Images</h3>
+            
+            <div class="upload-grid">
+              <!-- Primary Image -->
+              <div class="field">
+                <label class="field__label">Primary Hero Image (Desktop Left/Main)</label>
+                <div class="upload-zone" id="uploadZonePrimary" style="cursor: pointer;">
+                  <input type="file" name="heroImagePrimary" id="imageInputPrimary" accept="image/*" hidden />
+                  
+                  <div class="upload-zone__content" id="uploadContentPrimary" style="<%= (settings.heroImagePrimary && settings.heroImagePrimary.url) ? 'display:none;' : '' %>">
+                    <div class="upload-zone__icon">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <p class="upload-zone__text">Click or drag image here</p>
+                    <p class="upload-zone__hint">Supports JPG, PNG, WebP · Max 5MB</p>
+                  </div>
+
+                  <div class="upload-zone__preview" id="uploadPreviewPrimary" style="<%= (settings.heroImagePrimary && settings.heroImagePrimary.url) ? 'display:flex;' : 'display:none;' %>">
+                    <img src="<%= (settings.heroImagePrimary && settings.heroImagePrimary.url) ? settings.heroImagePrimary.url : '' %>" alt="Primary Hero" />
+                    <button type="button" class="upload-zone__remove" id="removeImagePrimary" title="Remove image">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Secondary Image -->
+              <div class="field">
+                <label class="field__label">Secondary Hero Image (Desktop Right/Supporting)</label>
+                <div class="upload-zone" id="uploadZoneSecondary" style="cursor: pointer;">
+                  <input type="file" name="heroImageSecondary" id="imageInputSecondary" accept="image/*" hidden />
+                  
+                  <div class="upload-zone__content" id="uploadContentSecondary" style="<%= (settings.heroImageSecondary && settings.heroImageSecondary.url) ? 'display:none;' : '' %>">
+                    <div class="upload-zone__icon">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <p class="upload-zone__text">Click or drag image here</p>
+                    <p class="upload-zone__hint">Supports JPG, PNG, WebP · Max 5MB</p>
+                  </div>
+
+                  <div class="upload-zone__preview" id="uploadPreviewSecondary" style="<%= (settings.heroImageSecondary && settings.heroImageSecondary.url) ? 'display:flex;' : 'display:none;' %>">
+                    <img src="<%= (settings.heroImageSecondary && settings.heroImageSecondary.url) ? settings.heroImageSecondary.url : '' %>" alt="Secondary Hero" />
+                    <button type="button" class="upload-zone__remove" id="removeImageSecondary" title="Remove image">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 2: Store Details -->
+          <div class="tab-pane" id="tab-store-details">
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">General Store Information</h3>
+
+            <!-- Tagline -->
+            <div class="field">
+              <label class="field__label" for="storeTagline">Store Tagline</label>
+              <div class="field__wrap">
+                <span class="field__icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                </span>
+                <input type="text" class="field__input" id="storeTagline" name="tagline" value="<%= settings.tagline %>" required autocomplete="off" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <!-- Email -->
+              <div class="field">
+                <label class="field__label" for="storeEmail">Contact Email</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </span>
+                  <input type="email" class="field__input" id="storeEmail" name="email" value="<%= settings.email %>" required autocomplete="off" />
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="field">
+                <label class="field__label" for="storePhone">Contact Phone</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  </span>
+                  <input type="text" class="field__input" id="storePhone" name="phone" value="<%= settings.phone %>" required autocomplete="off" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="field">
+              <label class="field__label" for="storeAddress">Store Address</label>
+              <div class="field__wrap">
+                <span class="field__icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <input type="text" class="field__input" id="storeAddress" name="address" value="<%= settings.address %>" required autocomplete="off" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+              <!-- Instagram -->
+              <div class="field">
+                <label class="field__label" for="storeInstagram">Instagram URL</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  </span>
+                  <input type="url" class="field__input" id="storeInstagram" name="instagram" value="<%= settings.instagram %>" required autocomplete="off" />
+                </div>
+              </div>
+
+              <!-- WhatsApp -->
+              <div class="field">
+                <label class="field__label" for="storeWhatsapp">WhatsApp Chat Link</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </span>
+                  <input type="url" class="field__input" id="storeWhatsapp" name="whatsapp" value="<%= settings.whatsapp %>" required autocomplete="off" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane 3: Instagram Feed -->
+          <div class="tab-pane" id="tab-instagram-feed">
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">Instagram Feed Customization</h3>
+            <p style="margin-bottom: 24px; color: var(--muted); font-size: .95rem;">Configure the four Instagram posts / reels shown on the homepage.</p>
+            
+            <div class="instagram-feed-grid">
+              <%
+                const defaultMocks = [
+                  {
+                    image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&h=400&fit=crop",
+                    link: "#",
+                    isReel: true
+                  },
+                  {
+                    image: "https://images.unsplash.com/photo-1572804013309-59aaffb0f731?w=400&h=400&fit=crop",
+                    link: "#",
+                    isReel: true
+                  },
+                  {
+                    image: "https://images.unsplash.com/photo-1594633312681-425a7b956cc9?w=400&h=400&fit=crop",
+                    link: "#",
+                    isReel: true
+                  },
+                  {
+                    image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=400&fit=crop",
+                    link: "#",
+                    isReel: false
+                  }
+                ];
+                for (let i = 0; i < 4; i++) {
+                  const post = (settings.instagramPosts && settings.instagramPosts[i]) ? settings.instagramPosts[i] : defaultMocks[i];
+              %>
+                <div class="instagram-feed-card">
+                  <div class="instagram-feed-card__title">
+                    <span>Card <%= i + 1 %></span>
+                    <span class="instagram-feed-card__badge" id="badgePostType<%= i %>"><%= post.isReel ? 'Reel' : 'Post' %></span>
+                  </div>
+
+                  <!-- Image File Uploader -->
+                  <div class="instagram-feed-card__preview" id="instagramPostZone<%= i %>">
+                    <input type="file" name="instagramPostImage<%= i %>" id="instagramPostInput<%= i %>" accept="image/*" hidden />
+                    <img id="instagramPostImg<%= i %>" src="<%= post.image %>" alt="Instagram post <%= i + 1 %>" />
+                    
+                    <button type="button" class="instagram-feed-card__remove" id="removeInstagramPostImage<%= i %>" title="Reset image" style="<%= post.image ? 'display: flex;' : 'display: none;' %>">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+
+                  <!-- Post/Reel Link -->
+                  <div class="field" style="margin-bottom: 0;">
+                    <label class="field__label" for="instagramPostLink<%= i %>">Post/Reel Link</label>
+                    <div class="field__wrap">
+                      <span class="field__icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                      </span>
+                      <input type="text" class="field__input" id="instagramPostLink<%= i %>" name="instagramPostLink<%= i %>" value="<%= post.link %>" placeholder="#" autocomplete="off" />
+                    </div>
+                  </div>
+
+                  <!-- Is Reel Toggle -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                    <span style="font-size: 0.9rem; font-weight: 500; color: var(--muted);">Display as Reel (Play Icon)</span>
+                    <input type="hidden" name="instagramPostIsReel<%= i %>" id="instagramPostIsReelHidden<%= i %>" value="<%= post.isReel ? 'true' : 'false' %>" />
+                    <label class="switch-toggle" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                      <input type="checkbox" id="instagramPostIsReelToggle<%= i %>" <%= post.isReel ? 'checked' : '' %> style="opacity: 0; width: 0; height: 0;" onchange="document.getElementById('instagramPostIsReelHidden<%= i %>').value = this.checked ? 'true' : 'false'; document.getElementById('badgePostType<%= i %>').textContent = this.checked ? 'Reel' : 'Post';" />
+                      <span style="position: absolute; cursor: pointer; inset: 0; background-color: rgba(200, 213, 192, 0.4); transition: .3s; border-radius: 24px;" class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Pane 4: Common Product Details -->
+          <div class="tab-pane" id="tab-common-product-details">
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">Common Product Details</h3>
+            <p style="margin-bottom: 24px; color: var(--muted); font-size: .95rem;">Configure common detailed sections that will display on all product pages.</p>
+
+            <!-- Additional Information -->
+            <div class="field">
+              <label class="field__label" for="additionalInfo">Additional Information</label>
+              <div class="field__wrap">
+                <textarea class="field__input" id="additionalInfo" name="additionalInfo" rows="6" style="height: auto; padding: 12px; font-family: inherit; resize: vertical; min-height: 100px;"><%= settings.additionalInfo || '' %></textarea>
+              </div>
+            </div>
+
+            <!-- Shipping & Store Policies -->
+            <div class="field">
+              <label class="field__label" for="shippingPolicy">Shipping &amp; Store Policies</label>
+              <div class="field__wrap">
+                <textarea class="field__input" id="shippingPolicy" name="shippingPolicy" rows="6" style="height: auto; padding: 12px; font-family: inherit; resize: vertical; min-height: 100px;"><%= settings.shippingPolicy || '' %></textarea>
+              </div>
+            </div>
+
+            <!-- Return & Exchange Information -->
+            <div class="field">
+              <label class="field__label" for="returnPolicy">Return &amp; Exchange Information</label>
+              <div class="field__wrap">
+                <textarea class="field__input" id="returnPolicy" name="returnPolicy" rows="6" style="height: auto; padding: 12px; font-family: inherit; resize: vertical; min-height: 100px;"><%= settings.returnPolicy || '' %></textarea>
+              </div>
+            </div>
+          </div>
+
+          </fieldset>
+
+          <!-- Form Actions -->
+          <div class="form-actions" style="margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(200, 213, 192, 0.4);">
+            <!-- View Mode Actions (Default) -->
+            <div id="viewModeActions" style="display: flex; gap: 12px; width: 100%; justify-content: flex-end;">
+              <a href="/admin/dashboard" class="btn btn--secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Dashboard
+              </a>
+              <button type="button" class="btn btn--primary" id="editBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Configurations
+              </button>
+            </div>
+
+            <!-- Edit Mode Actions (Shown on Edit click) -->
+            <div id="editModeActions" style="display: none; gap: 12px; width: 100%; justify-content: flex-end;">
+              <button type="button" class="btn btn--secondary" id="cancelEditBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Cancel
+              </button>
+              <button type="submit" class="btn btn--primary" id="submitBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="btn__text">Save Settings</span>
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Image Crop Modal -->
+  <div class="modal-overlay" id="cropModalOverlay">
+    <div class="modal modal--crop">
+      <h3>Crop Hero Image</h3>
+      <p style="margin-bottom: 16px; color: var(--muted); font-size: .92rem;">Adjust the selection to crop your hero image.</p>
+      <div class="cropper-container">
+        <img id="cropperImage" src="" alt="Source image to crop" />
+      </div>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--cancel" id="cancelCrop">Cancel</button>
+        <button type="button" class="btn btn--confirm-crop" id="confirmCrop">
+          <span class="btn__text">Crop &amp; Apply</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/loader') %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Sidebar toggling
+      const menuBtn = document.getElementById('menuBtn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+
+      function closeSidebar() {
+        sidebar?.classList.remove('open');
+        overlay?.classList.remove('show');
+      }
+
+      menuBtn?.addEventListener('click', () => {
+        sidebar?.classList.toggle('open');
+        overlay?.classList.toggle('show');
+      });
+
+      overlay?.addEventListener('click', closeSidebar);
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 980) closeSidebar();
+      });
+
+      // Tabs switching logic
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+      const tabsDropdown = document.getElementById('tabsDropdown');
+
+      const switchTab = (tabId) => {
+        tabBtns.forEach(btn => {
+          if (btn.getAttribute('data-tab') === tabId) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        tabPanes.forEach(pane => {
+          if (pane.id === `tab-${tabId}`) {
+            pane.classList.add('active');
+          } else {
+            pane.classList.remove('active');
+          }
+        });
+
+        if (tabsDropdown) {
+          tabsDropdown.value = tabId;
+        }
+      };
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab');
+          switchTab(tabId);
+        });
+      });
+
+      tabsDropdown?.addEventListener('change', (e) => {
+        switchTab(e.target.value);
+      });
+
+      // Cropper elements
+      const cropModalOverlay = document.getElementById('cropModalOverlay');
+      const cropperImage = document.getElementById('cropperImage');
+      const cancelCropBtn = document.getElementById('cancelCrop');
+      const confirmCropBtn = document.getElementById('confirmCrop');
+
+      let cropper = null;
+      let currentFile = null;
+      let currentFieldId = null;
+
+      const initCropper = (file, fieldId) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        currentFile = file;
+        currentFieldId = fieldId;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          cropperImage.src = e.target.result;
+          cropModalOverlay.classList.add('show');
+
+          if (cropper) {
+            cropper.destroy();
+          }
+
+          // Ratio calculation: Primary is 5/7 (0.714), Secondary is 8/11 (0.727)
+          const aspectRatio = (fieldId === 'Primary') ? (5 / 7) : (8 / 11);
+
+          cropper = new Cropper(cropperImage, {
+            aspectRatio: aspectRatio,
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            background: false,
+          });
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const closeCropModal = () => {
+        cropModalOverlay.classList.remove('show');
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        // reset input value so user can re-select same file if they cancel
+        const input = document.getElementById(`imageInput${currentFieldId}`);
+        if (input) input.value = '';
+      };
+
+      cancelCropBtn?.addEventListener('click', closeCropModal);
+
+      confirmCropBtn?.addEventListener('click', () => {
+        if (!cropper) return;
+
+        // Get output canvas sizes depending on field
+        const canvasWidth = (currentFieldId === 'Primary') ? 500 : 400;
+        const canvasHeight = (currentFieldId === 'Primary') ? 700 : 550;
+
+        const canvas = cropper.getCroppedCanvas({
+          width: canvasWidth,
+          height: canvasHeight,
+        });
+
+        if (canvas) {
+          canvas.toBlob((blob) => {
+            if (!blob) return;
+
+            const input = document.getElementById(`imageInput${currentFieldId}`);
+            const preview = document.getElementById(`uploadPreview${currentFieldId}`);
+            const content = document.getElementById(`uploadContent${currentFieldId}`);
+            const previewImg = preview.querySelector("img");
+
+            const croppedUrl = URL.createObjectURL(blob);
+            previewImg.src = croppedUrl;
+            preview.style.display = "flex";
+            content.style.display = "none";
+
+            const croppedFile = new File([blob], currentFile.name || `cropped-hero-${currentFieldId.toLowerCase()}.jpg`, {
+              type: blob.type || 'image/jpeg',
+              lastModified: Date.now()
+            });
+
+            const dt = new DataTransfer();
+            dt.items.add(croppedFile);
+            input.files = dt.files;
+
+            cropModalOverlay.classList.remove('show');
+            cropper.destroy();
+            cropper = null;
+          }, 'image/jpeg', 0.9);
+        }
+      });
+
+      // Edit / View mode toggling logic
+      const editBtn = document.getElementById('editBtn');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
+      const fieldset = document.getElementById('settingsFieldset');
+      const viewModeActions = document.getElementById('viewModeActions');
+      const editModeActions = document.getElementById('editModeActions');
+
+      editBtn?.addEventListener('click', () => {
+        fieldset?.removeAttribute('disabled');
+        if (viewModeActions) viewModeActions.style.setProperty('display', 'none', 'important');
+        if (editModeActions) editModeActions.style.setProperty('display', 'flex', 'important');
+      });
+
+      cancelEditBtn?.addEventListener('click', () => {
+        window.location.reload();
+      });
+
+      // Setup file upload zones (Primary & Secondary Hero images)
+      const setupHeroUploadZone = (fieldId) => {
+        const uploadZone = document.getElementById(`uploadZone${fieldId}`);
+        const input = document.getElementById(`imageInput${fieldId}`);
+        const preview = document.getElementById(`uploadPreview${fieldId}`);
+        const content = document.getElementById(`uploadContent${fieldId}`);
+        const removeBtn = document.getElementById(`removeImage${fieldId}`);
+        const previewImg = preview.querySelector("img");
+
+        uploadZone.addEventListener('click', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          if (e.target.closest('.upload-zone__remove')) return;
+          input.click();
+        });
+
+        input.addEventListener('change', () => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          if (input.files && input.files[0]) {
+            initCropper(input.files[0], fieldId);
+          }
+        });
+
+        removeBtn.addEventListener("click", (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.stopPropagation();
+          input.value = "";
+          preview.style.display = "none";
+          content.style.display = "flex";
+          previewImg.src = "";
+        });
+
+        // Drag and Drop
+        uploadZone.addEventListener('dragover', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.add('drag-active');
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.remove('drag-active');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.remove('drag-active');
+
+          const files = e.dataTransfer?.files;
+          if (files && files.length > 0) {
+            initCropper(files[0], fieldId);
+          }
+        });
+      };
+
+      setupHeroUploadZone('Primary');
+      setupHeroUploadZone('Secondary');
+
+      // Setup 4 Instagram posts uploaders
+      for (let i = 0; i < 4; i++) {
+        const uploadZone = document.getElementById(`instagramPostZone${i}`);
+        const input = document.getElementById(`instagramPostInput${i}`);
+        const previewImg = document.getElementById(`instagramPostImg${i}`);
+        const removeBtn = document.getElementById(`removeInstagramPostImage${i}`);
+
+        uploadZone.addEventListener('click', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          if (e.target.closest('.instagram-feed-card__remove')) return;
+          input.click();
+        });
+
+        input.addEventListener('change', () => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          const file = input.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              previewImg.src = e.target.result;
+              removeBtn.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        removeBtn.addEventListener('click', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.stopPropagation();
+          input.value = '';
+          previewImg.src = '';
+          removeBtn.style.display = 'none';
+        });
+
+        // Drag and Drop
+        uploadZone.addEventListener('dragover', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.add('drag-active');
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.remove('drag-active');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+          if (fieldset?.hasAttribute('disabled')) return;
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.remove('drag-active');
+
+          const files = e.dataTransfer?.files;
+          if (files && files.length > 0) {
+            const file = files[0];
+            if (file && file.type.startsWith('image/')) {
+              const dt = new DataTransfer();
+              dt.items.add(file);
+              input.files = dt.files;
+
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                removeBtn.style.display = 'flex';
+              };
+              reader.readAsDataURL(file);
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

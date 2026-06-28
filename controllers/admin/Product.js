@@ -41,6 +41,14 @@ const addProduct = async (req, res) => {
     const { name, category, description, price, discountPrice, stock, isFeatured, isListed } = req.body;
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
 
+    let productVariants = [];
+    if (req.body.productVariants) {
+      for (const [nameKey, optionsVal] of Object.entries(req.body.productVariants)) {
+        const options = Array.isArray(optionsVal) ? optionsVal.map(opt => opt.trim()) : [optionsVal.trim()];
+        productVariants.push({ name: nameKey, options });
+      }
+    }
+
     // Validate duplicate name
     const existingProduct = await Product.findOne({ name: name.trim() });
     if (existingProduct) {
@@ -48,6 +56,28 @@ const addProduct = async (req, res) => {
         categories,
         error: "Product already exists",
       });
+    }
+
+    const selectedCategory = await Category.findById(category);
+    if (selectedCategory && selectedCategory.variants && selectedCategory.variants.length > 0) {
+      for (const reqVar of selectedCategory.variants) {
+        const matchingVar = productVariants.find(v => v.name === reqVar.name);
+        if (!matchingVar || matchingVar.options.length === 0) {
+          return res.render("admin/products/add", {
+            categories,
+            error: `Please select at least one option for variant: ${reqVar.name}`,
+          });
+        }
+      }
+    }
+
+    let productCombinations = [];
+    if (req.body.combinations) {
+      productCombinations = req.body.combinations.map(c => ({
+        attributes: c.attributes || {},
+        price: parseFloat(c.price) || 0,
+        discountPrice: c.discountPrice ? parseFloat(c.discountPrice) : 0
+      }));
     }
 
     const productData = {
@@ -60,6 +90,8 @@ const addProduct = async (req, res) => {
       stock: parseInt(stock) || 0,
       isFeatured: isFeatured === "on",
       isListed: isListed === "on",
+      variants: productVariants,
+      combinations: productCombinations,
       images: [],
     };
 
@@ -152,6 +184,14 @@ const editProduct = async (req, res) => {
     const { name, category, description, price, discountPrice, stock, isFeatured, isListed, removedImages } = req.body;
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
 
+    let productVariants = [];
+    if (req.body.productVariants) {
+      for (const [nameKey, optionsVal] of Object.entries(req.body.productVariants)) {
+        const options = Array.isArray(optionsVal) ? optionsVal.map(opt => opt.trim()) : [optionsVal.trim()];
+        productVariants.push({ name: nameKey, options });
+      }
+    }
+
     // Validate duplicate name excluding current product
     const existingProduct = await Product.findOne({
       name: name.trim(),
@@ -164,6 +204,20 @@ const editProduct = async (req, res) => {
         categories,
         error: "A product with this name already exists",
       });
+    }
+
+    const selectedCategory = await Category.findById(category);
+    if (selectedCategory && selectedCategory.variants && selectedCategory.variants.length > 0) {
+      for (const reqVar of selectedCategory.variants) {
+        const matchingVar = productVariants.find(v => v.name === reqVar.name);
+        if (!matchingVar || matchingVar.options.length === 0) {
+          return res.render("admin/products/edit", {
+            product,
+            categories,
+            error: `Please select at least one option for variant: ${reqVar.name}`,
+          });
+        }
+      }
     }
 
     // Handle deleted images
@@ -188,6 +242,15 @@ const editProduct = async (req, res) => {
       product.images.push(...newImages);
     }
 
+    let productCombinations = [];
+    if (req.body.combinations) {
+      productCombinations = req.body.combinations.map(c => ({
+        attributes: c.attributes || {},
+        price: parseFloat(c.price) || 0,
+        discountPrice: c.discountPrice ? parseFloat(c.discountPrice) : 0
+      }));
+    }
+
     product.name = name.trim();
     product.slug = name.toLowerCase().replace(/\s+/g, "-");
     product.category = category;
@@ -197,6 +260,8 @@ const editProduct = async (req, res) => {
     product.stock = parseInt(stock) || 0;
     product.isFeatured = isFeatured === "on";
     product.isListed = isListed === "on";
+    product.variants = productVariants;
+    product.combinations = productCombinations;
 
     await product.save();
 

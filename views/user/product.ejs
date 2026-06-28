@@ -1,0 +1,438 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<%
+  const money = function(value) {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(Number(value || 0));
+  };
+  const categoryName = function(category) {
+    if (typeof category === 'string') return category;
+    return category && category.name ? category.name : 'Collection';
+  };
+%>
+
+<main class="product-detail-page" id="main-content">
+  <div class="container">
+    
+    <!-- Breadcrumb Navigation -->
+    <nav class="product-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span class="sep">/</span>
+      <a href="/shop">Shop</a>
+      <span class="sep">/</span>
+      <span class="current"><%= product.name %></span>
+    </nav>
+
+    <!-- Main Product Layout Grid -->
+    <div class="product-main">
+      
+      <!-- Product Images Gallery (Left Column) -->
+      <div class="product-gallery">
+        <div class="product-gallery__main">
+          <img 
+            id="mainProductImg"
+            src="<%= product.images && product.images[0] ? product.images[0].url : product.image %>" 
+            alt="<%= product.name %>" 
+            class="main-image"
+          />
+          <% if (product.badge) { %>
+            <span class="product-badge product-badge--<%= product.badge.toLowerCase() %>"><%= product.badge %></span>
+          <% } %>
+        </div>
+        
+        <% if (product.images && product.images.length > 1) { %>
+          <div class="product-gallery__thumbnails">
+            <% product.images.forEach(function(img, index) { %>
+              <button 
+                type="button" 
+                class="thumb-btn <%= index === 0 ? 'active' : '' %>"
+                data-img-url="<%= img.url %>"
+                aria-label="View product image <%= index + 1 %>"
+              >
+                <img src="<%= img.url %>" alt="" />
+              </button>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Product Meta & Actions (Right Column) -->
+      <div class="product-meta">
+        <span class="product-category"><%= categoryName(product.category) %></span>
+        <% if (product.sku) { %>
+          <div class="product-sku" style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">
+            Product ID: ZC-<%= product.sku %>
+          </div>
+        <% } %>
+        <h1 class="product-title"><%= product.name %></h1>
+        
+        <!-- Price Display -->
+        <div class="product-price-container">
+          <% if (product.salePrice) { %>
+            <span class="price-sale"><%= money(product.salePrice) %></span>
+            <span class="price-was"><%= money(product.price) %></span>
+          <% } else { %>
+            <span class="price-regular"><%= money(product.price) %></span>
+          <% } %>
+        </div>
+
+        <!-- Stock Status & Sizing Info -->
+        <% if ((product.isListed && product.stock > 0) || !product.isListed) { %>
+          <div class="product-status-row">
+            <% if (product.isListed && product.stock > 0) { %>
+              <span class="badge-status badge-status--instock">
+                <i class="fa-solid fa-circle-check"></i> In Stock (<%= product.stock %> available)
+              </span>
+            <% } else if (!product.isListed) { %>
+              <span class="badge-status badge-status--outofstock">
+                <i class="fa-solid fa-circle-xmark"></i> Out of Stock
+              </span>
+            <% } %>
+          </div>
+        <% } %>
+
+        <!-- Short Description Snippet (Dynamic) -->
+        <% if (product.description) { %>
+          <div class="product-short-description">
+            <p><%= product.description.split('\n')[0] %></p>
+          </div>
+        <% } %>
+
+        <!-- Dynamic Product Variants Selection -->
+        <% if (product.variants && product.variants.length > 0) { %>
+          <div class="product-variants-selection" style="margin: 28px 0 20px;">
+            <% product.variants.forEach(function(v, index) { %>
+              <div class="variant-select-group" style="margin-bottom: 20px;" data-variant-name="<%= v.name %>">
+                <label class="product-size-label" style="display: block; font-family: var(--font-body); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text);">
+                  Select <%= v.name %>
+                </label>
+                <div class="variant-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <% v.options.forEach(function(opt) { %>
+                    <button 
+                      type="button" 
+                      class="variant-btn" 
+                      data-variant="<%= v.name %>" 
+                      data-option="<%= opt %>"
+                      style="border: 1.5px solid rgba(200, 213, 192, 0.4); background: transparent; min-width: 46px; height: 46px; padding: 0 14px; font-family: var(--font-body); font-weight: 500; font-size: 0.9rem; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition); color: var(--text-muted); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <%= opt %>
+                    </button>
+                  <% }); %>
+                </div>
+              </div>
+            <% }); %>
+            <!-- Error message container -->
+            <div id="variantSelectionError" style="display: none; color: #a37265; font-size: 0.85rem; margin-top: 8px; font-weight: 500; font-family: var(--font-body);">
+              <i class="fa-solid fa-triangle-exclamation me-1"></i> Please make all selections before adding to bag
+            </div>
+            <!-- Hidden input to store selected variants as JSON -->
+            <!-- Hidden input to store selected variants as JSON -->
+            <input type="hidden" name="selectedVariants" id="selectedVariantsInput" value="" />
+          </div>
+        <% } %>
+
+        <% if (product.variants && product.variants.length > 0) { %>
+          <script>
+            const productCombinationsData = <%- JSON.stringify(product.combinations || []) %>;
+            const baseProductPrice = <%= product.price %>;
+            const baseProductDiscountPrice = <%= product.salePrice || 0 %>;
+          </script>
+        <% } %>
+
+        <script>
+          const productShareUrl = "<%= shareUrl %>";
+          const productNameStr = "<%= product.name %>";
+        </script>
+
+        <style>
+          .btn-share-action:hover {
+            border-color: var(--primary) !important;
+            background-color: var(--white) !important;
+            color: var(--primary) !important;
+          }
+        </style>
+
+        <!-- Share Product Section -->
+        <div class="product-share-box" style="margin: 24px 0 28px; border-top: 1px solid var(--line); padding-top: 20px;">
+          <span style="display: block; font-family: var(--font-body); font-weight: 600; margin-bottom: 12px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text);">
+            Share Product
+          </span>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <!-- Copy Link Button -->
+            <button type="button" id="btnShareCopy" class="btn-share-action" style="background: var(--panel-strong); border: 1.5px solid var(--line); padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all var(--transition);">
+              <i class="fa-regular fa-copy"></i> Copy Link
+            </button>
+            
+            <!-- WhatsApp Share Button -->
+            <button type="button" id="btnShareWhatsApp" class="btn-share-action" style="background: var(--panel-strong); border: 1.5px solid var(--line); padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all var(--transition);">
+              <i class="fa-brands fa-whatsapp"></i> Share on WhatsApp
+            </button>
+
+            <!-- Native Share Button -->
+            <button type="button" id="btnShareNative" class="btn-share-action" style="display: none; background: var(--panel-strong); border: 1.5px solid var(--line); padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all var(--transition);">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i> Share
+            </button>
+          </div>
+
+          <!-- Copy Feedback Toast (Inline) -->
+          <div id="shareCopyFeedback" style="display: none; font-family: var(--font-body); font-size: 0.82rem; color: var(--primary); font-weight: 600; margin-top: 8px;">
+            <i class="fa-solid fa-circle-check"></i> Link copied!
+          </div>
+        </div>
+
+        <!-- Product Actions -->
+        <div class="product-actions-box">
+          <% if (product.isListed) { %>
+            <%
+              const whatsappNumber = storeSettings.whatsapp ? storeSettings.whatsapp.replace('https://wa.me/', '').replace(/\s+/g, '') : '971501234567';
+              const whatsappMessage = encodeURIComponent(`Hello Zayrah Couture, I would like to order: ${product.name}`);
+              const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+            %>
+            <a 
+              href="<%= whatsappLink %>" 
+              target="_blank"
+              class="btn btn-zayrah btn-zayrah--primary w-100 btn-order-whatsapp"
+              style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;"
+            >
+              <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i>
+              Order by WhatsApp
+            </a>
+          <% } else { %>
+            <button 
+              type="button" 
+              class="btn btn-zayrah btn-zayrah--primary w-100"
+              style="background-color: #a37265; border-color: #a37265; cursor: not-allowed;"
+              disabled
+            >
+              <i class="fa-solid fa-circle-xmark me-2"></i>
+              Out of Stock
+            </button>
+          <% } %>
+        </div>
+
+        <!-- Dynamic Product Information Tabs -->
+        <div class="product-tabs">
+          <div class="product-tabs__nav" role="tablist">
+            <button 
+              type="button" 
+              class="tab-trigger active" 
+              role="tab" 
+              aria-selected="true" 
+              aria-controls="panel-desc" 
+              id="tab-desc"
+            >
+              Description
+            </button>
+            <button 
+              type="button" 
+              class="tab-trigger" 
+              role="tab" 
+              aria-selected="false" 
+              aria-controls="panel-info" 
+              id="tab-info"
+            >
+              Additional Information
+            </button>
+            <button 
+              type="button" 
+              class="tab-trigger" 
+              role="tab" 
+              aria-selected="false" 
+              aria-controls="panel-shipping" 
+              id="tab-shipping"
+            >
+              Shipping &amp; Policies
+            </button>
+            <button 
+              type="button" 
+              class="tab-trigger" 
+              role="tab" 
+              aria-selected="false" 
+              aria-controls="panel-returns" 
+              id="tab-returns"
+            >
+              Returns &amp; Exchanges
+            </button>
+          </div>
+
+          <div class="product-tabs__content">
+            <!-- 1. Description Pane -->
+            <div class="tab-panel active" id="panel-desc" role="tabpanel" aria-labelledby="tab-desc">
+              <div class="content-wrapper">
+                <% if (product.description) { %>
+                  <p><%- product.description.replace(/\n/g, '<br>') %></p>
+                <% } else { %>
+                  <p>No description available for this product.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- 2. Additional Info Pane -->
+            <div class="tab-panel" id="panel-info" role="tabpanel" aria-labelledby="tab-info">
+              <div class="content-wrapper">
+                <% if (storeSettings.additionalInfo) { %>
+                  <div class="policy-text"><%- storeSettings.additionalInfo.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>Dry clean recommended. Made with premium fabric.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- 3. Shipping Policies Pane -->
+            <div class="tab-panel" id="panel-shipping" role="tabpanel" aria-labelledby="tab-shipping">
+              <div class="content-wrapper">
+                <% if (storeSettings.shippingPolicy) { %>
+                  <div class="policy-text"><%- storeSettings.shippingPolicy.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>Ships in 3-5 business days.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- 4. Returns & Exchange Pane -->
+            <div class="tab-panel" id="panel-returns" role="tabpanel" aria-labelledby="tab-returns">
+              <div class="content-wrapper">
+                <% if (storeSettings.returnPolicy) { %>
+                  <div class="policy-text"><%- storeSettings.returnPolicy.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>7-day easy returns policy.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile FAQ-style Accordion (Visible on mobile only) -->
+        <div class="product-accordion">
+          
+          <!-- 1. Description Accordion -->
+          <div class="accordion-item">
+            <button type="button" class="accordion-header" aria-expanded="true" aria-controls="acc-desc">
+              <span>Description</span>
+              <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-collapse show" id="acc-desc">
+              <div class="accordion-body">
+                <% if (product.description) { %>
+                  <p><%- product.description.replace(/\n/g, '<br>') %></p>
+                <% } else { %>
+                  <p>No description available for this product.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Additional Info Accordion -->
+          <div class="accordion-item">
+            <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-info">
+              <span>Additional Information</span>
+              <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-collapse" id="acc-info">
+              <div class="accordion-body">
+                <% if (storeSettings.additionalInfo) { %>
+                  <div class="policy-text"><%- storeSettings.additionalInfo.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>Dry clean recommended. Made with premium fabric.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Shipping Accordion -->
+          <div class="accordion-item">
+            <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-shipping">
+              <span>Shipping &amp; Policies</span>
+              <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-collapse" id="acc-shipping">
+              <div class="accordion-body">
+                <% if (storeSettings.shippingPolicy) { %>
+                  <div class="policy-text"><%- storeSettings.shippingPolicy.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>Ships in 3-5 business days.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Returns Accordion -->
+          <div class="accordion-item">
+            <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-returns">
+              <span>Returns &amp; Exchanges</span>
+              <i class="fa-solid fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-collapse" id="acc-returns">
+              <div class="accordion-body">
+                <% if (storeSettings.returnPolicy) { %>
+                  <div class="policy-text"><%- storeSettings.returnPolicy.replace(/\n/g, '<br>') %></div>
+                <% } else { %>
+                  <p>7-day easy returns policy.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Related Products section -->
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+      <section class="related-products-section section" aria-labelledby="related-heading">
+        <header class="section-header text-center reveal-up">
+          <h2 class="section-title" id="related-heading">You May Also Like</h2>
+          <p class="section-subtitle">Complement your look with these handpicked items</p>
+        </header>
+
+        <div class="row g-3 g-md-4 product-grid">
+          <% relatedProducts.forEach(function(relProduct, index) { %>
+            <div class="col-xl-3 col-lg-3 col-md-6 col-6 reveal-up" style="--delay: <%= index * 0.08 %>s">
+              <article class="product-card">
+                <div class="product-card__image-wrap">
+                  <a href="/product/<%= relProduct.slug %>" tabindex="-1" aria-hidden="true">
+                    <img
+                      src="<%= relProduct.image %>"
+                      alt="<%= relProduct.name %>"
+                      class="product-card__img"
+                      loading="lazy"
+                      width="600"
+                      height="800"
+                    />
+                  </a>
+                  <% if (relProduct.badge) { %>
+                    <span class="product-badge product-badge--<%= relProduct.badge.toLowerCase() %>"><%= relProduct.badge %></span>
+                  <% } %>
+                </div>
+                <div class="product-card__body">
+                  <span class="product-card__category"><%= relProduct.category %></span>
+                  <h3 class="product-card__name">
+                    <a href="/product/<%= relProduct.slug %>"><%= relProduct.name %></a>
+                  </h3>
+                  <div class="product-card__price">
+                    <% if (relProduct.salePrice) { %>
+                      <span class="price-sale"><%= money(relProduct.salePrice) %></span>
+                      <span class="price-original"><%= money(relProduct.price) %></span>
+                    <% } else { %>
+                      <span class="price-regular"><%= money(relProduct.price) %></span>
+                    <% } %>
+                  </div>
+                </div>
+              </article>
+            </div>
+          <% }); %>
+        </div>
+      </section>
+    <% } %>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+<%- include('../partials/scripts') %>

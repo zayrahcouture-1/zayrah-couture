@@ -40,6 +40,13 @@ const categorySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    variants: [
+      {
+        name: { type: String, required: true },
+        options: { type: [String], default: [] }
+      }
+    ]
   },
   {
     timestamps: true,
