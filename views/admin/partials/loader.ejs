@@ -97,6 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Listen to all same-origin anchor link clicks for page navigation loader
   document.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', (e) => {
+      // Skip navbar links
+      if (link.closest('#siteHeader') || link.closest('.zayrah-nav')) {
+        return;
+      }
+
       const href = link.getAttribute('href');
       
       // Skip if no href, JavaScript trigger, anchor hash, mailto, or tel links
@@ -118,6 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const url = new URL(link.href, window.location.href);
         if (url.origin !== window.location.origin) {
+          return;
+        }
+        // Skip same page hash jumps
+        if (url.pathname === window.location.pathname && url.search === window.location.search) {
           return;
         }
       } catch (err) {
