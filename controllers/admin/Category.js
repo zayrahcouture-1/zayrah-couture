@@ -1,4 +1,5 @@
 const Category = require("../../models/Category");
+const Product = require("../../models/Product");
 const cloudinary = require("../../config/cloudinary");
 
 const generateUniqueCategorySlug = async (name, excludeId = null) => {
@@ -147,15 +148,28 @@ const toggleStatus = async (req, res) => {
     const category = await Category.findById(req.params.id);
 
     if (!category) {
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(404).json({ success: false, message: "Category not found" });
+      }
       return res.redirect("/admin/categories?error=Category not found");
     }
 
     category.isListed = !category.isListed;
     await category.save();
 
+    if (!category.isListed) {
+      await Product.updateMany({ category: category._id }, { isListed: false });
+    }
+
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Category status updated" });
+    }
     res.redirect("/admin/categories?success=Category status updated");
   } catch (error) {
     console.log(error);
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, message: "Failed to update category status" });
+    }
     res.redirect("/admin/categories?error=Failed to update category status");
   }
 };
@@ -202,6 +216,9 @@ const editCategory = async (req, res) => {
           console.error("Cloudinary cleanup error:", cloudinaryErr);
         }
       }
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(400).json({ success: false, error: "A category with this name already exists" });
+      }
       return res.render("admin/categories/edit", {
         category,
         error: "A category with this name already exists",
@@ -217,6 +234,9 @@ const editCategory = async (req, res) => {
           } catch (cloudinaryErr) {
             console.error("Cloudinary cleanup error:", cloudinaryErr);
           }
+        }
+        if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+          return res.status(400).json({ success: false, error: "Cannot feature more than 5 categories" });
         }
         return res.render("admin/categories/edit", {
           category,
@@ -270,9 +290,19 @@ const editCategory = async (req, res) => {
 
     await category.save();
 
+    if (!category.isListed) {
+      await Product.updateMany({ category: category._id }, { isListed: false });
+    }
+
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Category updated successfully" });
+    }
     res.redirect("/admin/categories?success=Category updated successfully");
   } catch (error) {
     console.log(error);
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, error: "Failed to update category" });
+    }
     res.redirect("/admin/categories?error=Failed to update category");
   }
 };
@@ -303,12 +333,18 @@ const toggleFeatured = async (req, res) => {
     const category = await Category.findById(req.params.id);
 
     if (!category) {
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(404).json({ success: false, message: "Category not found" });
+      }
       return res.redirect("/admin/categories?error=Category not found");
     }
 
     if (!category.isFeatured) {
       const featuredCount = await Category.countDocuments({ isFeatured: true });
       if (featuredCount >= 5) {
+        if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+          return res.status(400).json({ success: false, message: "Cannot feature more than 5 categories" });
+        }
         return res.redirect("/admin/categories?error=Cannot feature more than 5 categories");
       }
     }
@@ -316,9 +352,15 @@ const toggleFeatured = async (req, res) => {
     category.isFeatured = !category.isFeatured;
     await category.save();
 
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Category featured status updated" });
+    }
     res.redirect("/admin/categories?success=Category featured status updated");
   } catch (error) {
     console.log(error);
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, message: "Failed to update category featured status" });
+    }
     res.redirect("/admin/categories?error=Failed to update category featured status");
   }
 };

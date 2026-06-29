@@ -297,6 +297,27 @@ document.addEventListener('DOMContentLoaded', () => {
     nameCheckTimeout = setTimeout(performDuplicateCheck, 300);
   });
 
+  /* ---- Helper: Show Toast ---- */
+  function showToast(message, type = 'success') {
+    const existing = document.getElementById('toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.id = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .4s ease, transform .4s ease';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-20px) scale(0.95)';
+      setTimeout(() => {
+        toast.remove();
+      }, 400);
+    }, 3000);
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault(); // Stop submission initially to handle async validation
 
@@ -340,7 +361,37 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.classList.add('btn--loading');
     submitBtn.querySelector('.btn__text').textContent = 'Updating…';
 
-    form.submit();
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: formData
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showToast(data.message || 'Category updated successfully', 'success');
+        setTimeout(() => {
+          window.location.href = '/admin/categories?success=' + encodeURIComponent(data.message || 'Category updated successfully');
+        }, 800);
+      } else {
+        showToast(data.error || 'Failed to update category', 'error');
+        // Revert loading state only on failure
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn--loading');
+        submitBtn.querySelector('.btn__text').textContent = 'Update Category';
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update category', 'error');
+      // Revert loading state only on failure
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('btn--loading');
+      submitBtn.querySelector('.btn__text').textContent = 'Update Category';
+    }
   });
 
 });

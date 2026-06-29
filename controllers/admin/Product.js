@@ -142,15 +142,24 @@ const toggleProductStatus = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
       return res.redirect("/admin/products?error=Product not found");
     }
 
     product.isListed = !product.isListed;
     await product.save();
 
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Product status updated" });
+    }
     res.redirect("/admin/products?success=Product status updated");
   } catch (error) {
     console.log(error);
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, message: "Failed to update product status" });
+    }
     res.redirect("/admin/products?error=Failed to update product status");
   }
 };
@@ -160,15 +169,24 @@ const toggleProductFeatured = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
       return res.redirect("/admin/products?error=Product not found");
     }
 
     product.isFeatured = !product.isFeatured;
     await product.save();
 
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Product featured status updated" });
+    }
     res.redirect("/admin/products?success=Product featured status updated");
   } catch (error) {
     console.log(error);
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, message: "Failed to update product featured status" });
+    }
     res.redirect("/admin/products?error=Failed to update product featured status");
   }
 };
@@ -221,6 +239,9 @@ const editProduct = async (req, res) => {
     });
 
     if (existingProduct) {
+      if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        return res.status(400).json({ success: false, error: "A product with this name already exists" });
+      }
       return res.render("admin/products/edit", {
         product,
         categories,
@@ -233,6 +254,9 @@ const editProduct = async (req, res) => {
       for (const reqVar of selectedCategory.variants) {
         const matchingVar = productVariants.find(v => v.name === reqVar.name);
         if (!matchingVar || matchingVar.options.length === 0) {
+          if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(400).json({ success: false, error: `Please select at least one option for variant: ${reqVar.name}` });
+          }
           return res.render("admin/products/edit", {
             product,
             categories,
@@ -287,10 +311,16 @@ const editProduct = async (req, res) => {
 
     await product.save();
 
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({ success: true, message: "Product updated successfully" });
+    }
     res.redirect("/admin/products?success=Product updated successfully");
   } catch (error) {
     console.log(error);
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
+    if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(500).json({ success: false, error: "Failed to update product details" });
+    }
     res.render("admin/products/edit", {
       product: product || {},
       categories,

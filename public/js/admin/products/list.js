@@ -77,11 +77,53 @@ document.addEventListener('DOMContentLoaded', () => {
     categoryFilter?.addEventListener('change', filterProducts);
   }
 
-  /* ---- Toggle switch ---- */
+  /* ---- Helper: Show Toast ---- */
+  function showToast(message, type = 'success') {
+    const existing = document.getElementById('toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.id = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.transition = 'opacity .4s ease, transform .4s ease';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-20px) scale(0.95)';
+      setTimeout(() => {
+        toast.remove();
+      }, 400);
+    }, 3000);
+  }
+
+  /* ---- Toggle switch (isListed / Featured) via AJAX ---- */
   document.querySelectorAll('.toggle-input').forEach(toggle => {
-    toggle.addEventListener('change', () => {
+    toggle.addEventListener('change', async (e) => {
       const form = toggle.closest('form');
-      if (form) form.submit();
+      if (!form) return;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin'
+        });
+        const data = await response.json();
+        if (response.ok) {
+          showToast(data.message || 'Status updated successfully', 'success');
+        } else {
+          toggle.checked = !toggle.checked; // Revert checkbox state
+          showToast(data.message || 'Failed to update status', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        toggle.checked = !toggle.checked; // Revert checkbox state
+        showToast('Failed to update status', 'error');
+      }
     });
   });
 
