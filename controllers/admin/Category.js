@@ -1,6 +1,25 @@
 const Category = require("../../models/Category");
 const cloudinary = require("../../config/cloudinary");
 
+const generateUniqueCategorySlug = async (name, excludeId = null) => {
+  const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
+  let slug = baseSlug;
+  let count = 1;
+  while (true) {
+    const query = { slug };
+    if (excludeId) {
+      query._id = { $ne: excludeId };
+    }
+    const existing = await Category.findOne(query);
+    if (!existing) {
+      break;
+    }
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+  return slug;
+};
+
 const loadCategories = async (req, res) => {
   try {
     const categories = await Category.find().sort({
@@ -44,15 +63,19 @@ const addCategory = async (req, res) => {
       });
     }
 
+    if (!req.file) {
+      return res.render("admin/categories/add", {
+        error: "Category image is required",
+      });
+    }
+
     if (isFeatured === "on") {
       const featuredCount = await Category.countDocuments({ isFeatured: true });
       if (featuredCount >= 5) {
-        if (req.file) {
-          try {
-            await cloudinary.uploader.destroy(req.file.filename);
-          } catch (cloudinaryErr) {
-            console.error("Cloudinary cleanup error:", cloudinaryErr);
-          }
+        try {
+          await cloudinary.uploader.destroy(req.file.filename);
+        } catch (cloudinaryErr) {
+          console.error("Cloudinary cleanup error:", cloudinaryErr);
         }
         return res.render("admin/categories/add", {
           error: "Cannot feature more than 5 categories",
@@ -78,27 +101,43 @@ const addCategory = async (req, res) => {
       }
     }
 
+    if (variants.length === 0) {
+      try {
+        await cloudinary.uploader.destroy(req.file.filename);
+      } catch (cloudinaryErr) {
+        console.error("Cloudinary cleanup error:", cloudinaryErr);
+      }
+      return res.render("admin/categories/add", {
+        error: "At least one category variant is required",
+      });
+    }
+
     const categoryData = {
       name,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
+      slug: await generateUniqueCategorySlug(name),
       description,
       isFeatured: isFeatured === "on",
       isListed: isListed === "on",
       variants,
     };
 
-    if (req.file) {
-      categoryData.image = {
-        url: req.file.path,
-        public_id: req.file.filename,
-      };
-    }
+    categoryData.image = {
+      url: req.file.path,
+      public_id: req.file.filename,
+    };
 
     await Category.create(categoryData);
 
     res.redirect("/admin/categories?success=Category added successfully");
   } catch (error) {
     console.log(error);
+    if (req.file) {
+      try {
+        await cloudinary.uploader.destroy(req.file.filename);
+      } catch (cloudinaryErr) {
+        console.error("Cloudinary cleanup error:", cloudinaryErr);
+      }
+    }
     res.redirect("/admin/categories?error=Failed to add category");
   }
 };
@@ -205,7 +244,7 @@ const editCategory = async (req, res) => {
     }
 
     category.name = name.trim();
-    category.slug = name.toLowerCase().replace(/\s+/g, "-");
+    category.slug = await generateUniqueCategorySlug(name, category._id);
     category.description = description || "";
     category.isFeatured = isFeatured === "on";
     category.isListed = isListed === "on";
@@ -284,6 +323,29 @@ const toggleFeatured = async (req, res) => {
   }
 };
 
+const checkDuplicate = async (req, res) => {
+  try {
+    const { name, id } = req.body;
+    if (!name) {
+      return res.json({ exists: false });
+    }
+
+    const query = {
+      name: name.trim()
+    };
+
+    if (id) {
+      query._id = { $ne: id };
+    }
+
+    const existingCategory = await Category.findOne(query);
+    return res.json({ exists: !!existingCategory });
+  } catch (error) {
+    console.error("Error checking duplicate category name:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   loadCategories,
   loadAddCategory,
@@ -293,4 +355,5 @@ module.exports = {
   loadEditCategory,
   editCategory,
   deleteCategory,
+  checkDuplicate,
 };

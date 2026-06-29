@@ -6,11 +6,18 @@
 
 
   <div class="filter-block">
+    <div class="filter-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search products..." data-search-filter />
+    </div>
+  </div>
+
+  <div class="filter-block">
     <h3 class="filter-block__title">Categories</h3>
     <div class="filter-options">
       <% safeCategories.forEach(function(category, index) { %>
         <label class="filter-check">
-          <input type="checkbox" value="<%= categoryName(category) %>" data-category-filter />
+          <input type="checkbox" value="<%= categoryName(category) %>" data-slug="<%= categorySlug(category) %>" data-category-filter />
           <span><%= categoryName(category) %></span>
         </label>
       <% }); %>

@@ -256,6 +256,17 @@
 
     sortSelect?.addEventListener("change", () => applyFilters());
     updatePriceLabels(20000);
+
+    // Pre-filter by category if specified in views
+    const selectedCategorySlugData = document.getElementById("selectedCategorySlug");
+    const initialCategorySlug = selectedCategorySlugData ? JSON.parse(selectedCategorySlugData.textContent) : null;
+    if (initialCategorySlug) {
+      const checkbox = document.querySelector(`[data-category-filter][data-slug="${initialCategorySlug}"]`);
+      if (checkbox) {
+        checkbox.checked = true;
+        syncControl(checkbox);
+      }
+    }
   }
 
   function initQuickView() {

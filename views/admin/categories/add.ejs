@@ -116,8 +116,8 @@
           </div>
 
           <!-- Image Upload -->
-          <div class="field">
-            <label class="field__label">Category Image</label>
+          <div class="field" id="imageField">
+            <label class="field__label">Category Image <span class="required">*</span></label>
             <div class="upload-zone" id="uploadZone">
               <input type="file" name="image" id="imageInput" accept="image/*" hidden />
               <div class="upload-zone__content" id="uploadContent">
@@ -134,12 +134,13 @@
                 </button>
               </div>
             </div>
+            <span class="field__error-msg" id="imageError">Category image is required</span>
           </div>
 
           <!-- Category Variants -->
-          <div class="field" style="margin-bottom: 30px;">
-            <label class="field__label" style="font-weight: 600;">Category Variants <span class="muted">(Optional, e.g. Size, Color)</span></label>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; margin-top: 4px;">Define variants for this category. Products added under this category will inherit these variants, and users will select from these options.</p>
+          <div class="field" id="variantsField" style="margin-bottom: 30px;">
+            <label class="field__label" style="font-weight: 600;">Category Variants <span class="required">*</span></label>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; margin-top: 4px;">Define variants for this category. Products added under this category will inherit these variants, and users will select from these options. (At least one variant is required)</p>
             
             <div id="variantsContainer" style="display: flex; flex-direction: column; gap: 14px;">
               <!-- Dynamic variant rows will go here -->
@@ -149,6 +150,7 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Add Custom Variant
             </button>
+            <span class="field__error-msg" id="variantsError" style="margin-top: 8px;">At least one variant with name and options is required</span>
           </div>
 
           <!-- Toggle Switches -->

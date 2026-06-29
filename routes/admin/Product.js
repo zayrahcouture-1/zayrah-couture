@@ -37,6 +37,12 @@ router.post(
 );
 
 router.post(
+  "/products/check-duplicate",
+  isAdmin,
+  productController.checkDuplicate
+);
+
+router.post(
   "/products/toggle-status/:id",
   isAdmin,
   productController.toggleProductStatus

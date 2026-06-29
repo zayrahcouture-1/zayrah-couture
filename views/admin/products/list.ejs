@@ -78,6 +78,16 @@
           <input type="text" id="searchInput" class="search-input" placeholder="Search products…" autocomplete="off" />
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
+        <div class="filter-box">
+          <select id="categoryFilter" class="filter-select">
+            <option value="">All Categories</option>
+            <% if (categories && categories.length > 0) { %>
+              <% categories.forEach(function(cat) { %>
+                <option value="<%= cat._id %>"><%= cat.name %></option>
+              <% }); %>
+            <% } %>
+          </select>
+        </div>
         <a href="/admin/products/add" class="add-btn">+ Add Product</a>
       </section>
 
@@ -85,7 +95,7 @@
         <!-- ── Products Grid ── -->
         <section class="products-grid" id="productsGrid">
           <% products.forEach(function(product, index) { %>
-            <article class="product-card" data-name="<%= product.name.toLowerCase() %>" style="animation-delay: <%= index * 0.05 %>s">
+            <article class="product-card" data-name="<%= product.name.toLowerCase() %>" data-category="<%= product.category ? product.category._id.toString() : '' %>" style="animation-delay: <%= index * 0.05 %>s">
               <!-- Thumbnail -->
               <div class="product-thumb">
                 <% if (product.images && product.images.length > 0) { %>

@@ -4,6 +4,8 @@ const homeController = require("../../controllers/user/Home");
 
 router.get("/", homeController.getHome);
 router.get("/shop", homeController.getShop);
+router.get("/shop/:categorySlug", homeController.getShop);
+router.get("/api/search-data", homeController.getSearchData);
 router.get("/product/:slug", homeController.getProductDetails);
 router.get("/about", homeController.getAbout);
 router.get("/contact", homeController.getContact);

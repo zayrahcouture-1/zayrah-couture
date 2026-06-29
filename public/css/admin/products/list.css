@@ -250,6 +250,27 @@ body {
   box-shadow: 0 8px 25px rgba(160, 106, 69, 0.08);
 }
 
+.filter-select {
+  padding: 14px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-family: inherit;
+  font-size: .95rem;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;
+  transition: all .25s ease;
+}
+
+.filter-select:focus {
+  border-color: var(--accent-2);
+  background: var(--panel-strong);
+  box-shadow: 0 8px 25px rgba(160, 106, 69, 0.08);
+}
+
+
 .add-btn {
   display: inline-flex;
   align-items: center;

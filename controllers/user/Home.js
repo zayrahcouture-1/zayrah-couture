@@ -498,6 +498,7 @@ exports.getHome = async (req, res) => {
 exports.getShop = async (req, res) => {
   let storeSettings = defaultSettings;
   try {
+    const { categorySlug } = req.params;
     const dbSettings = await Settings.findOne().lean();
     if (dbSettings) {
       storeSettings = dbSettings;
@@ -523,6 +524,14 @@ exports.getShop = async (req, res) => {
           }))
         : shopCategories;
 
+    const searchCategories = dbCategories.length > 0
+      ? dbCategories.map(c => ({ title: c.name, slug: c.slug }))
+      : shopCategories.map(c => ({ title: c.name, slug: c.slug }));
+
+    const searchableProducts = dbProducts.length > 0
+      ? dbProducts.map(formatProduct)
+      : mockShopProducts;
+
     res.render("user/shop", {
       products,
       categories,
@@ -532,6 +541,9 @@ exports.getShop = async (req, res) => {
       pageTitle: "Shop Collection | Zayrah Couture",
       pageCss: "/css/user/shop.css",
       pageJs: "/js/user/shop.js",
+      selectedCategorySlug: categorySlug || null,
+      searchableProducts,
+      featuredCategories: searchCategories,
     });
   } catch (error) {
     console.error("Shop page error:", error);
@@ -546,6 +558,9 @@ exports.getShop = async (req, res) => {
       pageTitle: "Shop Collection | Zayrah Couture",
       pageCss: "/css/user/shop.css",
       pageJs: "/js/user/shop.js",
+      selectedCategorySlug: null,
+      searchableProducts: mockShopProducts,
+      featuredCategories: shopCategories.map(c => ({ title: c.name, slug: c.slug })),
     });
   }
 };
@@ -752,5 +767,28 @@ exports.getCheckout = async (req, res) => {
   } catch (error) {
     console.error("Checkout page error:", error);
     res.redirect("/shop?error=Failed to load checkout page");
+  }
+};
+
+exports.getSearchData = async (req, res) => {
+  try {
+    const dbCategories = await Category.find({ isListed: true }).sort({ name: 1 }).lean();
+    const categories = dbCategories.length > 0
+      ? dbCategories.map((c) => ({ title: c.name, slug: c.slug }))
+      : shopCategories.map((c) => ({ title: c.name, slug: c.slug }));
+
+    const dbProducts = await Product.find({ isListed: true })
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const products = dbProducts.length > 0
+      ? dbProducts.map(formatProduct)
+      : mockShopProducts;
+
+    res.json({ products, categories });
+  } catch (error) {
+    console.error("Error fetching search data:", error);
+    res.status(500).json({ error: "Failed to fetch search data" });
   }
 };

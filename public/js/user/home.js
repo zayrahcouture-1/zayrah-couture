@@ -13,14 +13,38 @@
 
   let products = [];
   let categories = [];
+  let isSearchDataLoaded = false;
+  let searchDataPromise = null;
 
-  try {
-    const productData = document.getElementById("searchData");
-    const categoryData = document.getElementById("categorySearchData");
-    if (productData) products = JSON.parse(productData.textContent);
-    if (categoryData) categories = JSON.parse(categoryData.textContent);
-  } catch (err) {
-    console.warn("Search data unavailable:", err);
+  function loadSearchData() {
+    if (isSearchDataLoaded) return Promise.resolve();
+    if (searchDataPromise) return searchDataPromise;
+
+    searchDataPromise = fetch("/api/search-data")
+      .then((response) => {
+        if (!response.ok) throw new Error("Search data request failed");
+        return response.json();
+      })
+      .then((data) => {
+        products = data.products || [];
+        categories = data.categories || [];
+        isSearchDataLoaded = true;
+        searchDataPromise = null;
+      })
+      .catch((err) => {
+        console.warn("API Search data unavailable, trying DOM fallback:", err);
+        searchDataPromise = null;
+        try {
+          const productData = document.getElementById("searchData");
+          const categoryData = document.getElementById("categorySearchData");
+          if (productData) products = JSON.parse(productData.textContent);
+          if (categoryData) categories = JSON.parse(categoryData.textContent);
+        } catch (domErr) {
+          console.warn("DOM Search data fallback unavailable:", domErr);
+        }
+      });
+
+    return searchDataPromise;
   }
 
   /* ---- Sticky Navbar ---- */
@@ -57,6 +81,11 @@
   /* ---- Search Overlay ---- */
   function openSearch() {
     if (!searchOverlay) return;
+    loadSearchData().then(() => {
+      if (searchInput && searchInput.value) {
+        renderSearchResults(searchInput.value);
+      }
+    });
     searchOverlay.classList.add("is-open");
     searchOverlay.setAttribute("aria-hidden", "false");
     searchToggle?.setAttribute("aria-expanded", "true");
@@ -93,11 +122,7 @@
       )
       .slice(0, 6);
 
-    const matchedCategories = categories
-      .filter((c) => c.title.toLowerCase().includes(term))
-      .slice(0, 3);
-
-    if (matchedProducts.length === 0 && matchedCategories.length === 0) {
+    if (matchedProducts.length === 0) {
       searchResults.classList.add("has-results");
       searchResults.innerHTML =
         '<p class="search-results__empty">No results found for "' +
@@ -107,23 +132,6 @@
     }
 
     let html = "";
-
-    if (matchedCategories.length > 0) {
-      html += '<p class="search-results__group-title">Categories</p>';
-      matchedCategories.forEach((cat) => {
-        html +=
-          '<a href="/shop/' +
-          encodeURIComponent(cat.slug) +
-          '" class="search-result-item" role="option">' +
-          '<span class="search-result-item__icon"><i class="fa-solid fa-layer-group"></i></span>' +
-          '<span class="search-result-item__info">' +
-          '<p class="search-result-item__name">' +
-          escapeHtml(cat.title) +
-          "</p>" +
-          '<p class="search-result-item__meta">Collection</p>' +
-          "</span></a>";
-      });
-    }
 
     if (matchedProducts.length > 0) {
       html += '<p class="search-results__group-title">Products</p>';
@@ -169,12 +177,16 @@
   searchBackdrop?.addEventListener("click", closeSearch);
 
   searchInput?.addEventListener("input", (e) => {
-    renderSearchResults(e.target.value);
+    loadSearchData().then(() => {
+      renderSearchResults(e.target.value);
+    });
   });
 
   searchForm?.addEventListener("submit", (e) => {
     e.preventDefault();
-    renderSearchResults(searchInput?.value || "");
+    loadSearchData().then(() => {
+      renderSearchResults(searchInput?.value || "");
+    });
   });
 
   document.addEventListener("keydown", (e) => {

@@ -2,6 +2,25 @@ const Product = require("../../models/Product");
 const Category = require("../../models/Category");
 const cloudinary = require("../../config/cloudinary");
 
+const generateUniqueProductSlug = async (name, excludeId = null) => {
+  const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
+  let slug = baseSlug;
+  let count = 1;
+  while (true) {
+    const query = { slug };
+    if (excludeId) {
+      query._id = { $ne: excludeId };
+    }
+    const existing = await Product.findOne(query);
+    if (!existing) {
+      break;
+    }
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+  return slug;
+};
+
 // Load all products with category data populated
 const loadProducts = async (req, res) => {
   try {
@@ -9,8 +28,11 @@ const loadProducts = async (req, res) => {
       .populate("category", "name")
       .sort({ createdAt: -1 });
 
+    const categories = await Category.find().sort({ name: 1 });
+
     res.render("admin/products/list", {
       products,
+      categories,
       success: req.query.success || null,
       error: req.query.error || null,
     });
@@ -82,7 +104,7 @@ const addProduct = async (req, res) => {
 
     const productData = {
       name: name.trim(),
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
+      slug: await generateUniqueProductSlug(name),
       category,
       description: description || "",
       price: parseFloat(price) || 0,
@@ -252,7 +274,7 @@ const editProduct = async (req, res) => {
     }
 
     product.name = name.trim();
-    product.slug = name.toLowerCase().replace(/\s+/g, "-");
+    product.slug = await generateUniqueProductSlug(name, product._id);
     product.category = category;
     product.description = description || "";
     product.price = parseFloat(price) || 0;
@@ -307,6 +329,29 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const checkDuplicate = async (req, res) => {
+  try {
+    const { name, id } = req.body;
+    if (!name) {
+      return res.json({ exists: false });
+    }
+
+    const query = {
+      name: name.trim()
+    };
+
+    if (id) {
+      query._id = { $ne: id };
+    }
+
+    const existingProduct = await Product.findOne(query);
+    return res.json({ exists: !!existingProduct });
+  } catch (error) {
+    console.error("Error checking duplicate product name:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   loadProducts,
   loadAddProduct,
@@ -316,4 +361,5 @@ module.exports = {
   loadEditProduct,
   editProduct,
   deleteProduct,
+  checkDuplicate,
 };

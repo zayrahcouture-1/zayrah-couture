@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewImg.src = croppedUrl;
         uploadContent.style.display = 'none';
         uploadPreview.style.display = 'flex';
+        document.getElementById('imageField')?.classList.remove('field--error');
 
         // Pack the cropped blob into the file input using DataTransfer
         const croppedFile = new File([blob], currentFile.name || 'cropped-category.jpg', {
@@ -200,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const variantsContainer = document.getElementById('variantsContainer');
 
   addVariantBtn?.addEventListener('click', () => {
+    document.getElementById('variantsField')?.classList.remove('field--error');
     const row = document.createElement('div');
     row.className = 'variant-row';
     row.style.display = 'flex';
@@ -222,6 +224,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
     `;
 
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        document.getElementById('variantsField')?.classList.remove('field--error');
+      });
+    });
+
     row.querySelector('.remove-variant-btn').addEventListener('click', () => {
       row.remove();
     });
@@ -240,28 +248,123 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameInput = document.getElementById('categoryName');
   const nameField = document.getElementById('nameField');
   const submitBtn = document.getElementById('submitBtn');
+  const nameError = document.getElementById('nameError');
 
-  // Clear error on typing
+  let isNameDuplicate = false;
+  let isCheckingDuplicate = false;
+  let nameCheckTimeout = null;
+
+  async function performDuplicateCheck() {
+    const val = nameInput.value.trim();
+    if (!val) {
+      nameField?.classList.remove('field--error');
+      if (nameError) nameError.textContent = 'Category name is required';
+      isNameDuplicate = false;
+      return;
+    }
+
+    isCheckingDuplicate = true;
+    try {
+      const response = await fetch('/admin/categories/check-duplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: val })
+      });
+      const data = await response.json();
+      if (data.exists) {
+        nameField?.classList.add('field--error');
+        if (nameError) nameError.textContent = 'Category already exists';
+        isNameDuplicate = true;
+      } else {
+        nameField?.classList.remove('field--error');
+        isNameDuplicate = false;
+      }
+    } catch (err) {
+      console.error('Error verifying duplicate status:', err);
+    } finally {
+      isCheckingDuplicate = false;
+    }
+  }
+
+  // Clear error on typing and trigger debounced duplicate check
   nameInput?.addEventListener('input', () => {
     if (nameInput.value.trim().length > 0) {
       nameField?.classList.remove('field--error');
     }
+    clearTimeout(nameCheckTimeout);
+    nameCheckTimeout = setTimeout(performDuplicateCheck, 300);
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Stop submission initially to handle async validation
+
     let isValid = true;
 
     // Validate name
     if (!nameInput.value.trim()) {
       nameField?.classList.add('field--error');
+      if (nameError) nameError.textContent = 'Category name is required';
       nameInput?.focus();
       isValid = false;
+    }
+
+    // Validate category image
+    const imageField = document.getElementById('imageField');
+    if (!imageInput.files || imageInput.files.length === 0) {
+      imageField?.classList.add('field--error');
+      isValid = false;
     } else {
-      nameField?.classList.remove('field--error');
+      imageField?.classList.remove('field--error');
+    }
+
+    // Validate category variants
+    const variantsField = document.getElementById('variantsField');
+    const variantRows = variantsContainer.querySelectorAll('.variant-row');
+    if (variantRows.length === 0) {
+      variantsField?.classList.add('field--error');
+      isValid = false;
+    } else {
+      let hasValidVariant = false;
+      variantRows.forEach(row => {
+        const nameInp = row.querySelector('input[name="variantNames[]"]');
+        const optionsInp = row.querySelector('input[name="variantOptions[]"]');
+        if (nameInp && optionsInp && nameInp.value.trim() && optionsInp.value.trim()) {
+          hasValidVariant = true;
+        }
+      });
+
+      if (!hasValidVariant) {
+        variantsField?.classList.add('field--error');
+        isValid = false;
+      } else {
+        variantsField?.classList.remove('field--error');
+      }
     }
 
     if (!isValid) {
-      e.preventDefault();
+      return;
+    }
+
+    // Wait for active duplicate checks to complete
+    if (isCheckingDuplicate) {
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (!isCheckingDuplicate) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 50);
+      });
+    } else {
+      await performDuplicateCheck();
+    }
+
+    if (isNameDuplicate) {
+      nameField?.classList.add('field--error');
+      if (nameError) nameError.textContent = 'Category already exists';
+      nameInput?.focus();
       return;
     }
 
@@ -269,6 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
     submitBtn.classList.add('btn--loading');
     submitBtn.querySelector('.btn__text').textContent = 'Saving…';
+
+    form.submit();
   });
 
 });

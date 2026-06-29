@@ -37,6 +37,12 @@ router.post(
 );
 
 router.post(
+  "/categories/check-duplicate",
+  isAdmin,
+  categoryController.checkDuplicate
+);
+
+router.post(
   "/categories/toggle-status/:id",
   isAdmin,
   categoryController.toggleStatus

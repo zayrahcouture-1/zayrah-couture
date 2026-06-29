@@ -326,9 +326,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const submitBtn        = document.getElementById('submitBtn');
   const imagesErrorMsg   = document.getElementById('imagesError');
+  const nameError        = document.getElementById('nameError');
 
-  // Input clear events
-  nameInput?.addEventListener('input', () => nameField.classList.remove('field--error'));
+  let isNameDuplicate = false;
+  let isCheckingDuplicate = false;
+  let nameCheckTimeout = null;
+
+  async function performDuplicateCheck() {
+    const val = nameInput.value.trim();
+    if (!val) {
+      nameField?.classList.remove('field--error');
+      if (nameError) nameError.textContent = 'Product name is required';
+      isNameDuplicate = false;
+      return;
+    }
+
+    isCheckingDuplicate = true;
+    try {
+      const response = await fetch('/admin/products/check-duplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: val })
+      });
+      const data = await response.json();
+      if (data.exists) {
+        nameField?.classList.add('field--error');
+        if (nameError) nameError.textContent = 'Product already exists';
+        isNameDuplicate = true;
+      } else {
+        nameField?.classList.remove('field--error');
+        isNameDuplicate = false;
+      }
+    } catch (err) {
+      console.error('Error verifying duplicate status:', err);
+    } finally {
+      isCheckingDuplicate = false;
+    }
+  }
+
+  // Input clear events and debounced duplicate check
+  nameInput?.addEventListener('input', () => {
+    nameField.classList.remove('field--error');
+    clearTimeout(nameCheckTimeout);
+    nameCheckTimeout = setTimeout(performDuplicateCheck, 300);
+  });
   categorySelect?.addEventListener('change', () => categoryField.classList.remove('field--error'));
   priceInput?.addEventListener('input', () => priceField.classList.remove('field--error'));
 
@@ -511,14 +554,39 @@ document.addEventListener('DOMContentLoaded', () => {
     buildCombinationsTable();
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Stop submission initially to handle async validation
     let isValid = true;
 
     // Validate Name
     if (!nameInput.value.trim()) {
       nameField.classList.add('field--error');
+      if (nameError) nameError.textContent = 'Product name is required';
       nameInput.focus();
       isValid = false;
+    }
+
+    // Wait for active duplicate checks to complete
+    if (isValid) {
+      if (isCheckingDuplicate) {
+        await new Promise(resolve => {
+          const interval = setInterval(() => {
+            if (!isCheckingDuplicate) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 50);
+        });
+      } else {
+        await performDuplicateCheck();
+      }
+
+      if (isNameDuplicate) {
+        nameField.classList.add('field--error');
+        if (nameError) nameError.textContent = 'Product already exists';
+        nameInput.focus();
+        isValid = false;
+      }
     }
 
     // Validate Category
@@ -574,7 +642,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!isValid) {
-      e.preventDefault();
       return;
     }
 
@@ -601,6 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
     submitBtn.classList.add('btn--loading');
     submitBtn.querySelector('.btn__text').textContent = 'Saving…';
+
+    form.submit();
   });
 
 });

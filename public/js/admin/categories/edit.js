@@ -247,28 +247,91 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameInput = document.getElementById('categoryName');
   const nameField = document.getElementById('nameField');
   const submitBtn = document.getElementById('submitBtn');
+  const nameError = document.getElementById('nameError');
+  const categoryId = form?.action.split('/').pop();
 
-  // Clear error on typing
+  let isNameDuplicate = false;
+  let isCheckingDuplicate = false;
+  let nameCheckTimeout = null;
+
+  async function performDuplicateCheck() {
+    const val = nameInput.value.trim();
+    if (!val) {
+      nameField?.classList.remove('field--error');
+      if (nameError) nameError.textContent = 'Category name is required';
+      isNameDuplicate = false;
+      return;
+    }
+
+    isCheckingDuplicate = true;
+    try {
+      const response = await fetch('/admin/categories/check-duplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: val, id: categoryId })
+      });
+      const data = await response.json();
+      if (data.exists) {
+        nameField?.classList.add('field--error');
+        if (nameError) nameError.textContent = 'Category name already exists';
+        isNameDuplicate = true;
+      } else {
+        nameField?.classList.remove('field--error');
+        isNameDuplicate = false;
+      }
+    } catch (err) {
+      console.error('Error verifying duplicate status:', err);
+    } finally {
+      isCheckingDuplicate = false;
+    }
+  }
+
+  // Clear error on typing and trigger debounced duplicate check
   nameInput?.addEventListener('input', () => {
     if (nameInput.value.trim().length > 0) {
       nameField?.classList.remove('field--error');
     }
+    clearTimeout(nameCheckTimeout);
+    nameCheckTimeout = setTimeout(performDuplicateCheck, 300);
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Stop submission initially to handle async validation
+
     let isValid = true;
 
     // Validate name
     if (!nameInput.value.trim()) {
       nameField?.classList.add('field--error');
+      if (nameError) nameError.textContent = 'Category name is required';
       nameInput?.focus();
       isValid = false;
-    } else {
-      nameField?.classList.remove('field--error');
     }
 
     if (!isValid) {
-      e.preventDefault();
+      return;
+    }
+
+    // Wait for active duplicate checks to complete
+    if (isCheckingDuplicate) {
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (!isCheckingDuplicate) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 50);
+      });
+    } else {
+      await performDuplicateCheck();
+    }
+
+    if (isNameDuplicate) {
+      nameField?.classList.add('field--error');
+      if (nameError) nameError.textContent = 'Category name already exists';
+      nameInput?.focus();
       return;
     }
 
@@ -276,6 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
     submitBtn.classList.add('btn--loading');
     submitBtn.querySelector('.btn__text').textContent = 'Updating…';
+
+    form.submit();
   });
 
 });

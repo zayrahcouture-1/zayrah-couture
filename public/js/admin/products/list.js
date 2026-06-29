@@ -50,22 +50,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ---- Search Filter ---- */
+  /* ---- Search and Category Filter ---- */
   const searchInput = document.getElementById('searchInput');
+  const categoryFilter = document.getElementById('categoryFilter');
   const grid = document.getElementById('productsGrid');
 
-  if (searchInput && grid) {
+  if (grid) {
     const cards = Array.from(grid.querySelectorAll('.product-card'));
 
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.toLowerCase().trim();
+    const filterProducts = () => {
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const selectedCategory = categoryFilter ? categoryFilter.value : '';
 
       cards.forEach(card => {
         const name = card.getAttribute('data-name') || '';
-        const match = name.includes(query);
-        card.style.display = match ? '' : 'none';
+        const category = card.getAttribute('data-category') || '';
+
+        const nameMatch = name.includes(query);
+        const categoryMatch = !selectedCategory || category === selectedCategory;
+
+        card.style.display = (nameMatch && categoryMatch) ? '' : 'none';
       });
-    });
+    };
+
+    searchInput?.addEventListener('input', filterProducts);
+    categoryFilter?.addEventListener('change', filterProducts);
   }
 
   /* ---- Toggle switch ---- */

@@ -133,9 +133,6 @@
                   <% if (!inStock) { %>
                     <span class="shop-stock-badge">Out of Stock</span>
                   <% } %>
-                  <button class="shop-quick-view" type="button" data-quick-view="<%= product.slug %>">
-                    Quick View
-                  </button>
                 </div>
                 <div class="shop-product-card__body">
                   <p class="shop-product-card__category"><%= category %></p>
@@ -203,6 +200,9 @@
 </div>
 
 <script type="application/json" id="shopProductsData"><%- JSON.stringify(safeProducts) %></script>
+<script type="application/json" id="selectedCategorySlug"><%- JSON.stringify(selectedCategorySlug) %></script>
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
 
 <%- include('../partials/footer') %>
 <%- include('../partials/scripts') %>
