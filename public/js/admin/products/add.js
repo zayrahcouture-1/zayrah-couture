@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cropper) cropper.destroy();
 
       cropper = new Cropper(cropperImage, {
-        aspectRatio: 1, // force 1:1 square crop
+        aspectRatio: 3 / 4, // force 3:4 portrait crop
         viewMode: 1,
         autoCropArea: 1,
         responsive: true,
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const canvas = cropper.getCroppedCanvas({
       width: 600,
-      height: 600
+      height: 800
     });
 
     if (!canvas) {
