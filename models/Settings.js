@@ -26,6 +26,14 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: "Elegant modest fashion for the modern woman"
     },
+    heroEyebrow: {
+      type: String,
+      default: "New Season"
+    },
+    heroHeading: {
+      type: String,
+      default: "From Zayrah, With Love"
+    },
     email: {
       type: String,
       default: "hello@zayrahcouture.com"

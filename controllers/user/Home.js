@@ -349,6 +349,8 @@ const mockBlogPosts = [
 const defaultSettings = {
   storeName: "Zayrah Couture",
   tagline: "Elegant modest fashion for the modern woman",
+  heroEyebrow: "New Season",
+  heroHeading: "From Zayrah, With Love",
   email: "hello@zayrahcouture.com",
   phone: "+971 50 123 4567",
   address: "Dubai Design District, UAE",
@@ -790,5 +792,46 @@ exports.getSearchData = async (req, res) => {
   } catch (error) {
     console.error("Error fetching search data:", error);
     res.status(500).json({ error: "Failed to fetch search data" });
+  }
+};
+
+exports.get404 = async (req, res) => {
+  let storeSettings = defaultSettings;
+  try {
+    const dbSettings = await Settings.findOne().lean();
+    if (dbSettings) {
+      storeSettings = dbSettings;
+    }
+
+    const dbCategories = await Category.find({ isListed: true }).sort({ name: 1 }).lean();
+    const featuredCategories = dbCategories.length > 0
+      ? dbCategories.map(c => ({ title: c.name, slug: c.slug }))
+      : shopCategories.map(c => ({ title: c.name, slug: c.slug }));
+
+    const dbProducts = await Product.find({ isListed: true })
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const searchableProducts = dbProducts.length > 0
+      ? dbProducts.map(formatProduct)
+      : mockShopProducts;
+
+    res.status(404).render("user/404", {
+      storeSettings,
+      featuredCategories,
+      searchableProducts,
+      pageName: "404",
+      pageTitle: "Page Not Found | Zayrah Couture",
+    });
+  } catch (error) {
+    console.error("404 page error:", error);
+    res.status(404).render("user/404", {
+      storeSettings,
+      featuredCategories: shopCategories.map(c => ({ title: c.name, slug: c.slug })),
+      searchableProducts: mockShopProducts,
+      pageName: "404",
+      pageTitle: "Page Not Found | Zayrah Couture",
+    });
   }
 };

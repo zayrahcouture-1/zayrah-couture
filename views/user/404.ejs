@@ -1,0 +1,24 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-404-container" style="min-height: calc(100vh - 450px); display: flex; align-items: center; justify-content: center; padding: clamp(40px, 8vw, 80px) 20px; background: var(--panel);">
+  <div class="text-center" style="max-width: 600px;">
+    <h1 style="font-family: var(--font-heading); font-size: clamp(6rem, 12vw, 10rem); color: var(--primary); font-weight: 300; margin: 0; line-height: 1; letter-spacing: -2px;">404</h1>
+    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.5rem); color: var(--text); font-weight: 400; margin: 20px 0 15px;">Page Not Found</h2>
+    <p style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 35px;">
+      The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+    </p>
+    <a href="/" style="display: inline-block; padding: 14px 32px; background: var(--primary); color: var(--white); font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; text-decoration: none; border-radius: var(--radius-sm); border: 1.5px solid var(--primary); box-shadow: 0 4px 15px rgba(47, 79, 62, 0.15); transition: all 0.3s ease;"
+       onmouseover="this.style.background='transparent'; this.style.color='var(--primary)'"
+       onmouseout="this.style.background='var(--primary)'; this.style.color='var(--white)'">
+      Return to Homepage
+    </a>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script type="application/json" id="searchData"><%- JSON.stringify(searchableProducts) %></script>
+<script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
+
+<%- include('../partials/scripts') %>

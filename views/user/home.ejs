@@ -55,8 +55,8 @@
 
         <div class="col-lg-4 order-lg-3 order-3">
           <div class="hero-content">
-            <p class="hero-eyebrow">New Season</p>
-            <h2 class="hero-heading">From Zayrah, With Love</h2>
+            <p class="hero-eyebrow"><%= storeSettings.heroEyebrow || 'New Season' %></p>
+            <h2 class="hero-heading"><%= storeSettings.heroHeading || 'From Zayrah, With Love' %></h2>
             <p class="hero-description">
               <%= storeSettings.tagline || 'Discover curated collections inspired by feminine elegance' %>
             </p>

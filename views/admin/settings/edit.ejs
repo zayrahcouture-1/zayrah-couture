@@ -358,7 +358,7 @@
 
           <!-- Pane 1: Hero Section -->
           <div class="tab-pane active" id="tab-hero-section">
-            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">Hero Section Images</h3>
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">Hero Section Content</h3>
             
             <div class="upload-grid">
               <!-- Primary Image -->
@@ -407,15 +407,34 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Pane 2: Store Details -->
-          <div class="tab-pane" id="tab-store-details">
-            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">General Store Information</h3>
+            <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+              <!-- Hero Eyebrow -->
+              <div class="field">
+                <label class="field__label" for="heroEyebrow">Hero Eyebrow (e.g. New Season)</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                  </span>
+                  <input type="text" class="field__input" id="heroEyebrow" name="heroEyebrow" value="<%= settings.heroEyebrow || '' %>" placeholder="New Season" required autocomplete="off" />
+                </div>
+              </div>
 
-            <!-- Tagline -->
-            <div class="field">
-              <label class="field__label" for="storeTagline">Store Tagline</label>
+              <!-- Hero Heading -->
+              <div class="field">
+                <label class="field__label" for="heroHeading">Hero Heading (e.g. From Zayrah, With Love)</label>
+                <div class="field__wrap">
+                  <span class="field__icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                  </span>
+                  <input type="text" class="field__input" id="heroHeading" name="heroHeading" value="<%= settings.heroHeading || '' %>" placeholder="From Zayrah, With Love" required autocomplete="off" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero Description / Tagline -->
+            <div class="field" style="margin-top: 16px;">
+              <label class="field__label" for="storeTagline">Hero Description / Tagline</label>
               <div class="field__wrap">
                 <span class="field__icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
@@ -423,6 +442,11 @@
                 <input type="text" class="field__input" id="storeTagline" name="tagline" value="<%= settings.tagline %>" required autocomplete="off" />
               </div>
             </div>
+          </div>
+
+          <!-- Pane 2: Store Details -->
+          <div class="tab-pane" id="tab-store-details">
+            <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; color: var(--primary); margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(200, 213, 192, 0.4);">General Store Information</h3>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
               <!-- Email -->

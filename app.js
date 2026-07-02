@@ -12,6 +12,7 @@ const categoryRoutes = require("./routes/admin/Category");
 const productRoutes = require("./routes/admin/Product");
 const settingsRoutes = require("./routes/admin/Settings");
 const homeRoutes = require("./routes/user/Home");
+const homeController = require("./controllers/user/Home");
 
 const app = express();
 
@@ -48,6 +49,9 @@ app.use("/admin", dashboardRoutes);
 app.use("/admin", categoryRoutes);
 app.use("/admin", productRoutes);
 app.use("/admin", settingsRoutes);
+
+// Catch-all 404 handler for unrecognized endpoints
+app.use(homeController.get404);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

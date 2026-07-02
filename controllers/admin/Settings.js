@@ -26,9 +26,11 @@ const updateSettings = async (req, res) => {
       settings = await Settings.create({});
     }
 
-    const { tagline, email, phone, address, instagram, whatsapp, additionalInfo, shippingPolicy, returnPolicy } = req.body;
+    const { tagline, email, phone, address, instagram, whatsapp, additionalInfo, shippingPolicy, returnPolicy, heroEyebrow, heroHeading } = req.body;
 
     settings.tagline = tagline ? tagline.trim() : "";
+    settings.heroEyebrow = heroEyebrow ? heroEyebrow.trim() : "";
+    settings.heroHeading = heroHeading ? heroHeading.trim() : "";
     settings.email = email ? email.trim() : "";
     settings.phone = phone ? phone.trim() : "";
     settings.address = address ? address.trim() : "";
