@@ -10,7 +10,7 @@
   const pagination = document.getElementById("shopPagination");
   const emptyState = document.getElementById("emptyState");
   const filterBadges = document.querySelectorAll("[data-filter-count]");
-  const itemsPerPage = 12;
+  const itemsPerPage = 24;
 
   let currentPage = 1;
   let filteredCards = cards.slice();
@@ -177,7 +177,12 @@
   function renderPagination(pageCount) {
     if (!pagination) return;
     pagination.innerHTML = "";
-    if (filteredCards.length === 0) return;
+    if (filteredCards.length === 0 || pageCount <= 1) {
+      pagination.style.display = "none";
+      return;
+    }
+
+    pagination.style.display = "flex";
 
     pagination.appendChild(createPageButton("Previous", currentPage - 1, currentPage === 1));
 
