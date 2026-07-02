@@ -403,6 +403,12 @@ exports.getHome = async (req, res) => {
     let featuredCategories = [];
     let searchableProducts = [];
 
+    const dbFeatured = await Product.find({ isFeatured: true, isListed: true })
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
+
     const dbProducts = await Product.find()
       .populate("category")
       .sort({ createdAt: -1 })
@@ -422,15 +428,20 @@ exports.getHome = async (req, res) => {
 
     if (dbProducts.length >= 4) {
       const formatted = dbProducts.map(formatProduct);
-      featuredProducts = formatted.filter((p) => p.isNew || p.badge).slice(0, 8);
-      if (featuredProducts.length < 4) featuredProducts = formatted.slice(0, 8);
+      
+      if (dbFeatured.length > 0) {
+        featuredProducts = dbFeatured.map(formatProduct);
+      } else {
+        featuredProducts = formatted.filter((p) => p.isNew || p.badge).slice(0, 20);
+        if (featuredProducts.length < 4) featuredProducts = formatted.slice(0, 20);
+      }
 
       bestSellerProducts = formatted.slice(0, 10);
       megaSaleProducts = formatted.filter((p) => p.isSale).slice(0, 8);
       if (megaSaleProducts.length < 4) megaSaleProducts = formatted.slice(0, 8);
       readyToWearProducts = formatted.slice(0, 10);
     } else {
-      featuredProducts = mockFeaturedProducts;
+      featuredProducts = dbFeatured.length > 0 ? dbFeatured.map(formatProduct) : mockFeaturedProducts;
       bestSellerProducts = mockFeaturedProducts.slice(0, 6);
       megaSaleProducts = mockFeaturedProducts.filter((p) => p.isSale);
       readyToWearProducts = mockFeaturedProducts.slice(2, 8);

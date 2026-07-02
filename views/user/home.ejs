@@ -60,7 +60,7 @@
             <p class="hero-description">
               <%= storeSettings.tagline || 'Discover curated collections inspired by feminine elegance' %>
             </p>
-            <a href="#collections" class="btn btn-zayrah btn-zayrah--primary">
+            <a href="/shop" class="btn btn-zayrah btn-zayrah--primary">
               Explore Collection
               <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
@@ -112,7 +112,7 @@
       </header>
 
       <div class="row g-4 product-grid">
-        <% featuredProducts.slice(0, 8).forEach(function(product, index) { %>
+        <% featuredProducts.slice(0, 20).forEach(function(product, index) { %>
           <div class="col-xl-3 col-lg-3 col-md-6 col-12 reveal-up" style="--delay: <%= (index % 4) * 0.08 %>s">
             <article class="product-card">
               <div class="product-card__image-wrap">
@@ -129,9 +129,6 @@
                 <% if (product.badge) { %>
                   <span class="product-badge product-badge--<%= product.badge.toLowerCase() %>"><%= product.badge %></span>
                 <% } %>
-                <div class="product-card__actions">
-                  <button class="btn-quick-view" data-product="<%= product.slug %>">Quick View</button>
-                </div>
               </div>
               <div class="product-card__body">
                 <span class="product-card__category"><%= product.category %></span>
@@ -161,7 +158,7 @@
       <div class="promo-banner__card reveal-up">
         <h2 class="promo-banner__title" id="promo-heading">Most Loved Collection</h2>
         <p class="promo-banner__text">Explore timeless designs crafted with elegance.</p>
-        <a href="#collections" class="btn btn-zayrah btn-zayrah--light">View Collection</a>
+        <a href="/shop" class="btn btn-zayrah btn-zayrah--light">View Collection</a>
       </div>
     </div>
   </section>
