@@ -6,263 +6,168 @@
   padding-top: 0;
 }
 
-
-
-.about-eyebrow,
-.section-label {
-  display: inline-block;
-  font-family: var(--font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--primary);
-  margin-bottom: 14px;
+/* ── Main Image ── */
+.about-hero-image {
+  max-width: 580px;
+  margin: 40px auto 0;
+  padding: 0 56px;
 }
 
-.about-story {
-  max-width: 1120px;
-  margin: 0 auto clamp(60px, 8vw, 90px);
+.about-hero-image__frame {
+  border-radius: var(--radius-lg, 18px);
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(35, 27, 23, 0.10);
+  border: 1px solid var(--line, #e8e3de);
+  padding: 36px;
+  background: var(--white, #fff);
+}
+
+.about-hero-image__frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ── Brand Heading & Tagline ── */
+.about-brand {
+  text-align: center;
+  max-width: 640px;
+  margin: clamp(36px, 6vw, 56px) auto clamp(40px, 7vw, 64px);
   padding: 0 20px;
 }
 
-.about-story__grid {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1fr);
-  gap: clamp(28px, 5vw, 64px);
-  align-items: center;
+.about-brand__eyebrow {
+  display: inline-block;
+  font-family: var(--font-body, sans-serif);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--primary, #2f4f3e);
+  margin-bottom: 14px;
 }
 
-.about-story__media {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--panel);
-  box-shadow: 0 20px 40px rgba(35, 27, 23, 0.08);
-  border: 1px solid var(--line);
-}
-
-.about-story__media img {
-  width: 100%;
-  height: 100%;
-  min-height: 420px;
-  max-height: 560px;
-  object-fit: cover;
-  display: block;
-}
-
-.about-story__content h2 {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
-  color: var(--text);
-  margin: 0 0 22px;
+.about-brand__heading {
+  font-family: var(--font-display, serif);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  color: var(--text, #231b17);
+  margin: 0 0 18px;
   font-weight: 400;
   line-height: 1.15;
 }
 
-.about-story__content p {
-  font-family: var(--font-body);
-  line-height: 1.85;
-  color: var(--text-muted);
-  margin: 0 0 18px;
-  font-size: 0.98rem;
-}
-
-.about-highlights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  border-top: 1.5px solid var(--line);
-  margin-top: 28px;
-  padding-top: 24px;
-}
-
-.about-highlight {
-  background: rgba(200, 213, 192, 0.06);
-  border: 1px solid rgba(47, 79, 62, 0.08);
-  border-radius: 16px;
-  padding: 20px;
-  transition: background var(--transition);
-}
-
-.about-highlight:hover {
-  background: rgba(200, 213, 192, 0.12);
-}
-
-.about-highlight h4 {
-  font-family: var(--font-body);
-  font-weight: 600;
-  color: var(--text);
-  font-size: 0.95rem;
-  margin: 0 0 8px;
-}
-
-.about-highlight p {
-  font-family: var(--font-body);
-  font-size: 0.86rem;
-  color: var(--text-muted);
-  line-height: 1.6;
+.about-brand__tagline {
+  font-family: var(--font-body, sans-serif);
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  color: var(--text-muted, #7a7067);
+  line-height: 1.8;
   margin: 0;
 }
 
-.about-values {
-  background: rgba(35, 27, 23, 0.02);
-  padding: clamp(60px, 8vw, 88px) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.about-values .container {
-  max-width: 1100px;
-  margin: 0 auto;
+/* ── Policy Sections (Plain Text) ── */
+.about-policies {
+  max-width: 760px;
+  margin: 0 auto clamp(60px, 8vw, 88px);
   padding: 0 20px;
 }
 
-.about-values__head {
-  max-width: 720px;
-  margin: 0 auto 40px;
+.about-policy-block {
+  border-top: 1.5px solid var(--line, #e8e3de);
+  padding: 28px 0;
+}
+
+.about-policy-block:last-child {
+  border-bottom: 1.5px solid var(--line, #e8e3de);
+}
+
+.about-policy-block__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.about-policy-block__icon {
+  color: var(--primary, #2f4f3e);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  width: 24px;
   text-align: center;
 }
 
-.about-values__head h3 {
-  font-family: var(--font-display);
-  font-size: clamp(1.7rem, 3vw, 2.2rem);
-  color: var(--text);
-  margin: 0 0 14px;
+.about-policy-block__title {
+  font-family: var(--font-display, serif);
+  font-size: 1.15rem;
   font-weight: 400;
-}
-
-.about-values__head p {
-  font-family: var(--font-body);
-  font-size: 0.96rem;
-  color: var(--text-muted);
-  line-height: 1.75;
-  margin: 0 auto;
-}
-
-.about-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.about-card {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 32px 28px;
-  box-shadow: 0 10px 30px rgba(47, 79, 62, 0.03);
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-}
-
-.about-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(47, 79, 62, 0.08);
-  border-color: var(--primary);
-}
-
-.about-card__icon {
-  color: var(--primary);
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  display: inline-block;
-}
-
-.about-card h4 {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--text);
-  margin: 0 0 10px;
-}
-
-.about-card p {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.7;
+  color: var(--text, #231b17);
   margin: 0;
 }
 
-@media (max-width: 992px) {
-  .about-story__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .about-story__media {
-    max-width: 680px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .about-story__content {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .about-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.about-policy-block__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0 36px;
 }
 
+.about-policy-block__list li {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.93rem;
+  color: var(--text-muted, #7a7067);
+  line-height: 1.75;
+  padding: 5px 0;
+  padding-left: 18px;
+  position: relative;
+}
+
+.about-policy-block__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #2f4f3e);
+  opacity: 0.4;
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-
-  .about-hero {
-    margin-bottom: 52px;
+  .about-hero-image {
+    max-width: 100%;
+    padding: 0 32px;
   }
 
-  .about-story {
-    margin-bottom: 60px;
+  .about-hero-image__frame {
+    padding: 24px;
   }
 
-  .about-story__media img {
-    min-height: 360px;
-    max-height: 460px;
+  .about-brand {
+    padding: 0 16px;
   }
 
-  .about-highlights {
-    grid-template-columns: 1fr;
+  .about-policies {
+    padding: 0 16px;
   }
 
-  .about-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .about-card {
-    padding: 22px 20px;
+  .about-policy-block__list {
+    margin-left: 36px;
   }
 }
 
-@media (max-width: 560px) {
-
-  .about-story,
-  .about-values .container {
-    padding-left: 16px;
-    padding-right: 16px;
+@media (max-width: 480px) {
+  .about-hero-image {
+    padding: 0 20px;
   }
 
-  .about-eyebrow,
-  .section-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.16em;
+  .about-hero-image__frame {
+    padding: 18px;
   }
 
-  .about-story__content p,
-  .about-values__head p,
-  .about-card p {
-    font-size: 0.92rem;
-  }
-
-  .about-story__media {
-    border-radius: 18px;
-  }
-
-  .about-story__media img {
-    min-height: 300px;
-    max-height: 380px;
-  }
-
-  .about-highlight {
-    padding: 16px;
+  .about-policy-block__list li {
+    font-size: 0.88rem;
   }
 }
 </style>
@@ -277,75 +182,73 @@
         <span>About</span>
       </nav>
       <h1 class="shop-hero__title">About Zayrah Couture</h1>
-      <p class="shop-hero__text"><%= storeSettings.tagline %></p>
     </div>
   </section>
 
-  <!-- Our Story -->
-  <section class="about-story">
-    <div class="about-story__grid">
-      <!-- Left Column: Image -->
-      <div class="about-story__media">
-        <img 
-          src="<%= (storeSettings.heroImageSecondary && storeSettings.heroImageSecondary.url) ? storeSettings.heroImageSecondary.url : 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=550&fit=crop' %>" 
-          alt="Zayrah Couture Story" 
-        />
-      </div>
-      
-      <!-- Right Column: Content -->
-      <div class="about-story__content">
-        <span class="section-label">Our Philosophy</span>
-        <h2>The Philosophy of Modest Luxury</h2>
-        <p>
-          Founded on the principle of sophisticated modesty, <strong>Zayrah Couture</strong> curates luxury Abayas and modest wear for the modern woman. We believe garments should carry both contemporary grace and traditional values, expressing elegance without compromise.
-        </p>
-        <p>
-          Every silhouette is drafted with precise details, combining sleek lines, subtle hand-embroidery, and high-quality fabrics sourced from trusted textile artisans.
-        </p>
-        
-        <!-- Craft Details Cards -->
-        <div class="about-highlights">
-          <div class="about-highlight">
-            <h4>Handcrafted Quality</h4>
-            <p>Carefully drafted lines and bespoke hand-embroidery details.</p>
-          </div>
-          <div class="about-highlight">
-            <h4>Premium Fabrics</h4>
-            <p>Sourced luxury fabrics chosen for weight, breathability, and drape.</p>
-          </div>
-        </div>
-      </div>
+  <!-- Main Image -->
+  <section class="about-hero-image">
+    <div class="about-hero-image__frame">
+      <img
+        src="<%= (storeSettings.heroImagePrimary && storeSettings.heroImagePrimary.url) ? storeSettings.heroImagePrimary.url : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop' %>"
+        alt="Zayrah Couture"
+        loading="eager"
+        width="680"
+        height="900"
+      />
     </div>
   </section>
 
-  <!-- Care Instructions & Info -->
-  <section class="about-values">
-    <div class="container">
-      <div class="about-values__head">
-        <span class="section-label">Garment Care</span>
-        <h3>Sourcing & Quality Philosophy</h3>
-        <p>We maintain an uncompromising dedication to quality, materials, and execution, ensuring every piece is built to last.</p>
+  <!-- Brand Heading & Tagline -->
+  <section class="about-brand">
+    <span class="about-brand__eyebrow"><%= storeSettings.heroEyebrow || 'Our Story' %></span>
+    <h2 class="about-brand__heading"><%= storeSettings.heroHeading || 'From Zayrah, With Love' %></h2>
+    <p class="about-brand__tagline">
+      <%= storeSettings.tagline || 'Elegant modest fashion for the modern woman' %>
+    </p>
+  </section>
+
+  <!-- Policy Sections (Plain Text) -->
+  <section class="about-policies" aria-label="Store Policies">
+    <!-- Additional Information -->
+    <div class="about-policy-block">
+      <div class="about-policy-block__header">
+        <i class="fa-solid fa-circle-info about-policy-block__icon"></i>
+        <h3 class="about-policy-block__title">Additional Information</h3>
       </div>
-      
-      <div class="about-cards">
-        <div class="about-card">
-          <div class="about-card__icon"><i class="fa-solid fa-circle-check"></i></div>
-          <h4>Quality Control</h4>
-          <p>Every thread and stitch is verified by our couture team in Dubai before dispatch.</p>
-        </div>
-        
-        <div class="about-card">
-          <div class="about-card__icon"><i class="fa-solid fa-droplet"></i></div>
-          <h4>Premium Sourcing</h4>
-          <p>We use premium grade Nida, Japanese crepe, and linen fabrics for the perfect fall and weight.</p>
-        </div>
-        
-        <div class="about-card">
-          <div class="about-card__icon"><i class="fa-solid fa-shirt"></i></div>
-          <h4>Dry Clean Preferred</h4>
-          <p>To preserve delicate beadwork and embroidery, dry cleaning or handwashing is recommended.</p>
-        </div>
+      <ul class="about-policy-block__list">
+        <% const additionalLines = (storeSettings.additionalInfo || '').split('\n').filter(l => l.trim()); %>
+        <% additionalLines.forEach(function(line) { %>
+          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
+        <% }); %>
+      </ul>
+    </div>
+
+    <!-- Shipping Policy -->
+    <div class="about-policy-block">
+      <div class="about-policy-block__header">
+        <i class="fa-solid fa-truck-fast about-policy-block__icon"></i>
+        <h3 class="about-policy-block__title">Shipping Policy</h3>
       </div>
+      <ul class="about-policy-block__list">
+        <% const shippingLines = (storeSettings.shippingPolicy || '').split('\n').filter(l => l.trim()); %>
+        <% shippingLines.forEach(function(line) { %>
+          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
+        <% }); %>
+      </ul>
+    </div>
+
+    <!-- Return & Exchange Policy -->
+    <div class="about-policy-block">
+      <div class="about-policy-block__header">
+        <i class="fa-solid fa-rotate-left about-policy-block__icon"></i>
+        <h3 class="about-policy-block__title">Return & Exchange Policy</h3>
+      </div>
+      <ul class="about-policy-block__list">
+        <% const returnLines = (storeSettings.returnPolicy || '').split('\n').filter(l => l.trim()); %>
+        <% returnLines.forEach(function(line) { %>
+          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
+        <% }); %>
+      </ul>
     </div>
   </section>
 </main>

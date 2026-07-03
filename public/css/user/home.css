@@ -1660,8 +1660,11 @@ button {
   }
 
   .hero-images {
-    height: 420px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    aspect-ratio: 420 / 520;
+    margin: 0 auto;
   }
 
   .steps-line {
@@ -1750,17 +1753,10 @@ button {
   }
 
   .hero-images {
-    height: min(360px, 70vw);
-  }
-
-  .hero-image--primary {
-    width: 68%;
-    height: 82%;
-  }
-
-  .hero-image--secondary {
-    width: 50%;
-    height: 58%;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 420 / 520;
   }
 
   .hero-decor--1,
