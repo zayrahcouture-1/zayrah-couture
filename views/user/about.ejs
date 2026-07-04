@@ -6,169 +6,334 @@
   padding-top: 0;
 }
 
-/* ── Main Image ── */
-.about-hero-image {
-  max-width: 580px;
-  margin: 40px auto 0;
-  padding: 0 56px;
-}
 
-.about-hero-image__frame {
-  border-radius: var(--radius-lg, 18px);
-  overflow: hidden;
-  box-shadow: 0 24px 48px rgba(35, 27, 23, 0.10);
-  border: 1px solid var(--line, #e8e3de);
-  padding: 36px;
-  background: var(--white, #fff);
-}
 
-.about-hero-image__frame img {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-/* ── Brand Heading & Tagline ── */
-.about-brand {
-  text-align: center;
-  max-width: 640px;
-  margin: clamp(36px, 6vw, 56px) auto clamp(40px, 7vw, 64px);
-  padding: 0 20px;
-}
-
-.about-brand__eyebrow {
+.about-eyebrow,
+.section-label {
   display: inline-block;
-  font-family: var(--font-body, sans-serif);
+  font-family: var(--font-body);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--primary, #2f4f3e);
+  color: var(--primary);
   margin-bottom: 14px;
 }
 
-.about-brand__heading {
-  font-family: var(--font-display, serif);
-  font-size: clamp(1.9rem, 4vw, 2.6rem);
-  color: var(--text, #231b17);
-  margin: 0 0 18px;
+.about-story {
+  max-width: 1120px;
+  margin: 0 auto clamp(60px, 8vw, 90px);
+  padding: 0 20px;
+}
+
+.about-story__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.about-story__media {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 20px 40px rgba(35, 27, 23, 0.08);
+  border: 1px solid var(--line);
+}
+
+.about-story__media img {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  max-height: 560px;
+  object-fit: cover;
+  display: block;
+}
+
+
+.about-story__content h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  color: var(--text);
+  margin: 0 0 22px;
   font-weight: 400;
   line-height: 1.15;
 }
 
-.about-brand__tagline {
-  font-family: var(--font-body, sans-serif);
-  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
-  color: var(--text-muted, #7a7067);
-  line-height: 1.8;
+.about-story__content p {
+  font-family: var(--font-body);
+  line-height: 1.85;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+  font-size: 0.98rem;
+}
+
+.about-highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  border-top: 1.5px solid var(--line);
+  margin-top: 28px;
+  padding-top: 24px;
+}
+
+.about-highlight {
+  background: rgba(200, 213, 192, 0.06);
+  border: 1px solid rgba(47, 79, 62, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  transition: background var(--transition);
+}
+
+.about-highlight:hover {
+  background: rgba(200, 213, 192, 0.12);
+}
+
+.about-highlight h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+
+.about-highlight p {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.6;
   margin: 0;
 }
 
-/* ── Policy Sections (Plain Text) ── */
-.about-policies {
-  max-width: 760px;
-  margin: 0 auto clamp(60px, 8vw, 88px);
+.about-values {
+  background: rgba(35, 27, 23, 0.02);
+  padding: clamp(60px, 8vw, 88px) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.about-values .container {
+  max-width: 1100px;
+  margin: 0 auto;
   padding: 0 20px;
 }
 
-.about-policy-block {
-  border-top: 1.5px solid var(--line, #e8e3de);
-  padding: 28px 0;
-}
-
-.about-policy-block:last-child {
-  border-bottom: 1.5px solid var(--line, #e8e3de);
-}
-
-.about-policy-block__header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.about-policy-block__icon {
-  color: var(--primary, #2f4f3e);
-  font-size: 1.15rem;
-  flex-shrink: 0;
-  width: 24px;
+.about-values__head {
+  max-width: 720px;
+  margin: 0 auto 40px;
   text-align: center;
 }
 
-.about-policy-block__title {
-  font-family: var(--font-display, serif);
-  font-size: 1.15rem;
+.about-values__head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  color: var(--text);
+  margin: 0 0 14px;
   font-weight: 400;
-  color: var(--text, #231b17);
+}
+
+.about-values__head p {
+  font-family: var(--font-body);
+  font-size: 0.96rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin: 0 auto;
+}
+
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.about-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 30px rgba(47, 79, 62, 0.03);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.about-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(47, 79, 62, 0.08);
+  border-color: var(--primary);
+}
+
+.about-card__icon {
+  color: var(--primary);
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.about-card h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.about-card p {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
   margin: 0;
 }
 
-.about-policy-block__list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 0 36px;
+@media (max-width: 992px) {
+  .about-story__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-story__content {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .about-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.about-policy-block__list li {
-  font-family: var(--font-body, sans-serif);
-  font-size: 0.93rem;
-  color: var(--text-muted, #7a7067);
-  line-height: 1.75;
-  padding: 5px 0;
-  padding-left: 18px;
-  position: relative;
+  .about-story__media {
+    margin-top: 40px;
+  }
+
+  .about-hero {
+    margin-bottom: 52px;
+  }
+
+  .about-story {
+    margin-bottom: 60px;
+  }
+
+  .about-story__media img {
+    min-height: 360px;
+    max-height: 460px;
+  }
+
+  .about-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .about-card {
+    padding: 22px 20px;
+  }
 }
 
-.about-policy-block__list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 14px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--primary, #2f4f3e);
-  opacity: 0.4;
+@media (max-width: 560px) {
+
+  .about-story,
+  .about-values .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .about-eyebrow,
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+
+  .about-story__content p,
+  .about-values__head p,
+  .about-card p {
+    font-size: 0.92rem;
+  }
+
+  .about-story__media {
+    border-radius: 18px;
+  }
+
+  .about-story__media img {
+    min-height: 300px;
+    max-height: 380px;
+  }
+
+
+  .about-highlight {
+    padding: 16px;
+  }
 }
 
-/* ── Responsive ── */
+/* Mobile Accordion Styles */
+.product-accordion {
+  display: none;
+  margin-top: 32px;
+  border-top: 1px solid rgba(200, 213, 192, 0.3);
+}
+
 @media (max-width: 768px) {
-  .about-hero-image {
-    max-width: 100%;
-    padding: 0 32px;
+  .about-cards {
+    display: none !important;
   }
-
-  .about-hero-image__frame {
-    padding: 24px;
-  }
-
-  .about-brand {
-    padding: 0 16px;
-  }
-
-  .about-policies {
-    padding: 0 16px;
-  }
-
-  .about-policy-block__list {
-    margin-left: 36px;
+  .product-accordion {
+    display: block !important;
   }
 }
 
-@media (max-width: 480px) {
-  .about-hero-image {
-    padding: 0 20px;
-  }
+.accordion-item {
+  border-bottom: 1px solid rgba(200, 213, 192, 0.3);
+}
 
-  .about-hero-image__frame {
-    padding: 18px;
-  }
+.accordion-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: color 0.25s ease;
+}
 
-  .about-policy-block__list li {
-    font-size: 0.88rem;
-  }
+.accordion-header:hover {
+  color: var(--accent);
+}
+
+.accordion-icon {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-header[aria-expanded="true"] .accordion-icon {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.accordion-collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  opacity: 0;
+}
+
+.accordion-collapse.show {
+  max-height: 1000px;
+  opacity: 1;
+  padding-bottom: 20px;
+}
+
+.accordion-body {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-muted);
 }
 </style>
 
@@ -182,73 +347,113 @@
         <span>About</span>
       </nav>
       <h1 class="shop-hero__title">About Zayrah Couture</h1>
+      <p class="shop-hero__text"><%= storeSettings.tagline %></p>
     </div>
   </section>
 
-  <!-- Main Image -->
-  <section class="about-hero-image">
-    <div class="about-hero-image__frame">
-      <img
-        src="<%= (storeSettings.heroImagePrimary && storeSettings.heroImagePrimary.url) ? storeSettings.heroImagePrimary.url : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop' %>"
-        alt="Zayrah Couture"
-        loading="eager"
-        width="680"
-        height="900"
-      />
+  <!-- Our Story -->
+  <section class="about-story">
+    <div class="about-story__grid">
+      <!-- Left Column: Image -->
+      <div class="about-story__media">
+        <img 
+          src="<%= (storeSettings.heroImagePrimary && storeSettings.heroImagePrimary.url) ? storeSettings.heroImagePrimary.url : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=700&fit=crop' %>" 
+          alt="Zayrah Couture Story" 
+        />
+      </div>
+      
+      <!-- Right Column: Content -->
+      <div class="about-story__content">
+        <span class="section-label">Our Story</span>
+        <h2>About Zayrah Couture</h2>
+        <p>
+          <strong>Zayrah Couture</strong> is a women’s fashion brand based in Kerala, India. Founded in 2024 by Nidha Nasar, the brand was born from a passion for entrepreneurship and women’s fashion, with a vision to make beautiful ethnic wear accessible to every woman.
+        </p>
+        <p>
+          At Zayrah, we believe that style should never come with a heavy price tag. Our mission is to offer high-quality, trending, unique, and signature designs at affordable prices, so you can celebrate every occasion with confidence without compromising on quality or elegance.
+        </p>
+        <p>
+          From elegant Pakistani suits to thoughtfully curated ethnic styles, every collection is carefully selected to help you look and feel your best. We are committed to bringing you timeless pieces that become a part of your most cherished moments.
+        </p>
+        <p>
+          With Pan-India shipping, we strive to make shopping effortless, affordable, and enjoyable for women across the country. More than just a fashion brand, Zayrah is dedicated to spreading confidence, happiness, and smiles through every outfit we deliver.
+        </p>
+        <p>
+          At Zayrah Couture, we’re honoured to be a part of your beautiful moments—one outfit at a time.
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- Brand Heading & Tagline -->
-  <section class="about-brand">
-    <span class="about-brand__eyebrow"><%= storeSettings.heroEyebrow || 'Our Story' %></span>
-    <h2 class="about-brand__heading"><%= storeSettings.heroHeading || 'From Zayrah, With Love' %></h2>
-    <p class="about-brand__tagline">
-      <%= storeSettings.tagline || 'Elegant modest fashion for the modern woman' %>
-    </p>
-  </section>
-
-  <!-- Policy Sections (Plain Text) -->
-  <section class="about-policies" aria-label="Store Policies">
-    <!-- Additional Information -->
-    <div class="about-policy-block">
-      <div class="about-policy-block__header">
-        <i class="fa-solid fa-circle-info about-policy-block__icon"></i>
-        <h3 class="about-policy-block__title">Additional Information</h3>
+  <!-- Product Guidelines -->
+  <section class="about-values">
+    <div class="container">
+      <div class="about-values__head">
+        <span class="section-label">Shopping Info</span>
+        <h3>Product Guidelines & Policies</h3>
+        <p>Learn more about our materials, shipping, and return policies.</p>
       </div>
-      <ul class="about-policy-block__list">
-        <% const additionalLines = (storeSettings.additionalInfo || '').split('\n').filter(l => l.trim()); %>
-        <% additionalLines.forEach(function(line) { %>
-          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
-        <% }); %>
-      </ul>
-    </div>
-
-    <!-- Shipping Policy -->
-    <div class="about-policy-block">
-      <div class="about-policy-block__header">
-        <i class="fa-solid fa-truck-fast about-policy-block__icon"></i>
-        <h3 class="about-policy-block__title">Shipping Policy</h3>
+      
+      <!-- Desktop Cards (Hidden on mobile) -->
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-shirt"></i></div>
+          <h4>Additional Information</h4>
+          <p style="white-space: pre-line; text-align: left;"><%= storeSettings.additionalInfo %></p>
+        </div>
+        
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-truck-fast"></i></div>
+          <h4>Shipping Policy</h4>
+          <p style="white-space: pre-line; text-align: left;"><%= storeSettings.shippingPolicy %></p>
+        </div>
+        
+        <div class="about-card">
+          <div class="about-card__icon"><i class="fa-solid fa-rotate-left"></i></div>
+          <h4>Return Policy</h4>
+          <p style="white-space: pre-line; text-align: left;"><%= storeSettings.returnPolicy %></p>
+        </div>
       </div>
-      <ul class="about-policy-block__list">
-        <% const shippingLines = (storeSettings.shippingPolicy || '').split('\n').filter(l => l.trim()); %>
-        <% shippingLines.forEach(function(line) { %>
-          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
-        <% }); %>
-      </ul>
-    </div>
 
-    <!-- Return & Exchange Policy -->
-    <div class="about-policy-block">
-      <div class="about-policy-block__header">
-        <i class="fa-solid fa-rotate-left about-policy-block__icon"></i>
-        <h3 class="about-policy-block__title">Return & Exchange Policy</h3>
+      <!-- Mobile Accordion (Hidden on desktop) -->
+      <div class="product-accordion">
+        <div class="accordion-item">
+          <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-about-info">
+            <span>Additional Information</span>
+            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+          </button>
+          <div class="accordion-collapse" id="acc-about-info">
+            <div class="accordion-body" style="white-space: pre-line; text-align: left;">
+              <%= storeSettings.additionalInfo %>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-about-shipping">
+            <span>Shipping Policy</span>
+            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+          </button>
+          <div class="accordion-collapse" id="acc-about-shipping">
+            <div class="accordion-body" style="white-space: pre-line; text-align: left;">
+              <%= storeSettings.shippingPolicy %>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button type="button" class="accordion-header" aria-expanded="false" aria-controls="acc-about-returns">
+            <span>Return Policy</span>
+            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+          </button>
+          <div class="accordion-collapse" id="acc-about-returns">
+            <div class="accordion-body" style="white-space: pre-line; text-align: left;">
+              <%= storeSettings.returnPolicy %>
+            </div>
+          </div>
+        </div>
       </div>
-      <ul class="about-policy-block__list">
-        <% const returnLines = (storeSettings.returnPolicy || '').split('\n').filter(l => l.trim()); %>
-        <% returnLines.forEach(function(line) { %>
-          <li><%= line.replace(/^[•\-]\s*/, '') %></li>
-        <% }); %>
-      </ul>
+
     </div>
   </section>
 </main>
@@ -259,3 +464,24 @@
 <script type="application/json" id="categorySearchData"><%- JSON.stringify(featuredCategories.map(function(c) { return { title: c.title, slug: c.slug }; })) %></script>
 
 <%- include('../partials/scripts') %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const headers = document.querySelectorAll(".accordion-header");
+    headers.forEach((header) => {
+      header.addEventListener("click", () => {
+        const isExpanded = header.getAttribute("aria-expanded") === "true";
+        const controlId = header.getAttribute("aria-controls");
+        const collapseEl = document.getElementById(controlId);
+        
+        // Toggle attribute
+        header.setAttribute("aria-expanded", !isExpanded);
+        
+        // Toggle collapse show state
+        if (collapseEl) {
+          collapseEl.classList.toggle("show");
+        }
+      });
+    });
+  });
+</script>
