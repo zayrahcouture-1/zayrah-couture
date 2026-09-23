@@ -2,3 +2,15 @@ node_modules
 .env
 .vscode
 .DS_Store
+
+
+# User uploaded images
+uploads/*
+!uploads/products/
+!uploads/products/.gitkeep
+!uploads/categories/
+!uploads/categories/.gitkeep
+!uploads/hero/
+!uploads/hero/.gitkeep
+!uploads/instagram/
+!uploads/instagram/.gitkeep

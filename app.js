@@ -14,6 +14,7 @@ const settingsRoutes = require("./routes/admin/Settings");
 const homeRoutes = require("./routes/user/Home");
 const homeController = require("./controllers/user/Home");
 
+
 const app = express();
 
 connectDB();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
