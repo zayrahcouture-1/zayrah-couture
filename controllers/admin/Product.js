@@ -1,6 +1,9 @@
 const Product = require("../../models/Product");
 const Category = require("../../models/Category");
-const cloudinary = require("../../config/cloudinary");
+const {
+  deleteProductImageFile,
+  cleanupUploadedFiles,
+} = require("../../utils/storageHelper");
 
 const generateUniqueProductSlug = async (name, excludeId = null) => {
   const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
@@ -74,6 +77,9 @@ const addProduct = async (req, res) => {
     // Validate duplicate name
     const existingProduct = await Product.findOne({ name: name.trim() });
     if (existingProduct) {
+      if (req.files && req.files.length > 0) {
+        await cleanupUploadedFiles(req.files);
+      }
       return res.render("admin/products/add", {
         categories,
         error: "Product already exists",
@@ -85,6 +91,9 @@ const addProduct = async (req, res) => {
       for (const reqVar of selectedCategory.variants) {
         const matchingVar = productVariants.find(v => v.name === reqVar.name);
         if (!matchingVar || matchingVar.options.length === 0) {
+          if (req.files && req.files.length > 0) {
+            await cleanupUploadedFiles(req.files);
+          }
           return res.render("admin/products/add", {
             categories,
             error: `Please select at least one option for variant: ${reqVar.name}`,
@@ -119,7 +128,7 @@ const addProduct = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       productData.images = req.files.map((file) => ({
-        url: file.path,
+        url: `/uploads/products/${file.filename}`,
         public_id: file.filename,
       }));
     }
@@ -129,6 +138,9 @@ const addProduct = async (req, res) => {
     res.redirect("/admin/products?success=Product added successfully");
   } catch (error) {
     console.log(error);
+    if (req.files && req.files.length > 0) {
+      await cleanupUploadedFiles(req.files);
+    }
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
     res.render("admin/products/add", {
       categories,
@@ -218,6 +230,9 @@ const editProduct = async (req, res) => {
   try {
     product = await Product.findById(req.params.id);
     if (!product) {
+      if (req.files && req.files.length > 0) {
+        await cleanupUploadedFiles(req.files);
+      }
       return res.redirect("/admin/products?error=Product not found");
     }
 
@@ -239,6 +254,9 @@ const editProduct = async (req, res) => {
     });
 
     if (existingProduct) {
+      if (req.files && req.files.length > 0) {
+        await cleanupUploadedFiles(req.files);
+      }
       if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
         return res.status(400).json({ success: false, error: "A product with this name already exists" });
       }
@@ -254,6 +272,9 @@ const editProduct = async (req, res) => {
       for (const reqVar of selectedCategory.variants) {
         const matchingVar = productVariants.find(v => v.name === reqVar.name);
         if (!matchingVar || matchingVar.options.length === 0) {
+          if (req.files && req.files.length > 0) {
+            await cleanupUploadedFiles(req.files);
+          }
           if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
             return res.status(400).json({ success: false, error: `Please select at least one option for variant: ${reqVar.name}` });
           }
@@ -267,22 +288,22 @@ const editProduct = async (req, res) => {
     }
 
     // Handle deleted images
-    if (removedImages) {
-      const idsToRemove = removedImages.split(",").filter((id) => id.trim().length > 0);
-      for (const public_id of idsToRemove) {
-        try {
-          await cloudinary.uploader.destroy(public_id);
-          product.images = product.images.filter((img) => img.public_id !== public_id);
-        } catch (err) {
-          console.log("Cloudinary image deletion error:", err);
-        }
-      }
+    const idsToRemove = removedImages
+      ? removedImages.split(",").map((id) => id.trim()).filter((id) => id.length > 0)
+      : [];
+
+    const imagesToRemove = (idsToRemove.length > 0 && product.images)
+      ? product.images.filter((img) => idsToRemove.includes(img.public_id))
+      : [];
+
+    if (idsToRemove.length > 0) {
+      product.images = product.images.filter((img) => !idsToRemove.includes(img.public_id));
     }
 
     // Handle newly uploaded files
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((file) => ({
-        url: file.path,
+        url: `/uploads/products/${file.filename}`,
         public_id: file.filename,
       }));
       product.images.push(...newImages);
@@ -311,12 +332,25 @@ const editProduct = async (req, res) => {
 
     await product.save();
 
+    // After successful database update, clean up removed physical files for local images only
+    if (imagesToRemove.length > 0) {
+      for (const img of imagesToRemove) {
+        if (img.url && img.url.startsWith("/uploads/products/")) {
+          await deleteProductImageFile(img.public_id);
+        }
+        // If it is a Cloudinary/external URL: DO NOT call Cloudinary destroy.
+      }
+    }
+
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.json({ success: true, message: "Product updated successfully" });
     }
     res.redirect("/admin/products?success=Product updated successfully");
   } catch (error) {
     console.log(error);
+    if (req.files && req.files.length > 0) {
+      await cleanupUploadedFiles(req.files);
+    }
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.status(500).json({ success: false, error: "Failed to update product details" });
@@ -337,15 +371,12 @@ const deleteProduct = async (req, res) => {
       return res.redirect("/admin/products?error=Product not found");
     }
 
-    // Clean up images from Cloudinary
+    // Clean up local images from disk
     if (product.images && product.images.length > 0) {
       for (const image of product.images) {
-        if (image.public_id) {
-          try {
-            await cloudinary.uploader.destroy(image.public_id);
-          } catch (err) {
-            console.log("Cloudinary destroy error:", err);
-          }
+        // Delete only local images. For legacy Cloudinary images, DO NOT call Cloudinary destroy!
+        if (image.url && image.url.startsWith("/uploads/products/")) {
+          await deleteProductImageFile(image.public_id);
         }
       }
     }

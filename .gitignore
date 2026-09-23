@@ -5,12 +5,11 @@ node_modules
 
 
 # User uploaded images
-uploads/*
-!uploads/products/
+uploads/products/*
 !uploads/products/.gitkeep
-!uploads/categories/
+uploads/categories/*
 !uploads/categories/.gitkeep
-!uploads/hero/
+uploads/hero/*
 !uploads/hero/.gitkeep
-!uploads/instagram/
+uploads/instagram/*
 !uploads/instagram/.gitkeep
