@@ -1,21 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../../config/cloudinary");
+const upload = require("../../config/storage");
 
 const categoryController = require("../../controllers/admin/Category.js");
 const isAdmin = require("../../middleware/Auth.js");
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "zayrah/categories",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-  },
-});
-
-const upload = multer({ storage });
 
 router.get(
   "/categories",

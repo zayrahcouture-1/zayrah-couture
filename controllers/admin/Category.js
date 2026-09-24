@@ -1,6 +1,9 @@
 const Category = require("../../models/Category");
 const Product = require("../../models/Product");
-const cloudinary = require("../../config/cloudinary");
+const {
+  deleteCategoryImageFile,
+  cleanupUploadedCategoryFile,
+} = require("../../utils/storageHelper");
 
 const generateUniqueCategorySlug = async (name, excludeId = null) => {
   const baseSlug = name.trim().toLowerCase().replace(/\s+/g, "-");
@@ -53,11 +56,7 @@ const addCategory = async (req, res) => {
 
     if (existingCategory) {
       if (req.file) {
-        try {
-          await cloudinary.uploader.destroy(req.file.filename);
-        } catch (cloudinaryErr) {
-          console.error("Cloudinary cleanup error:", cloudinaryErr);
-        }
+        await cleanupUploadedCategoryFile(req.file);
       }
       return res.render("admin/categories/add", {
         error: "Category already exists",
@@ -73,10 +72,8 @@ const addCategory = async (req, res) => {
     if (isFeatured === "on") {
       const featuredCount = await Category.countDocuments({ isFeatured: true });
       if (featuredCount >= 5) {
-        try {
-          await cloudinary.uploader.destroy(req.file.filename);
-        } catch (cloudinaryErr) {
-          console.error("Cloudinary cleanup error:", cloudinaryErr);
+        if (req.file) {
+          await cleanupUploadedCategoryFile(req.file);
         }
         return res.render("admin/categories/add", {
           error: "Cannot feature more than 5 categories",
@@ -103,10 +100,8 @@ const addCategory = async (req, res) => {
     }
 
     if (variants.length === 0) {
-      try {
-        await cloudinary.uploader.destroy(req.file.filename);
-      } catch (cloudinaryErr) {
-        console.error("Cloudinary cleanup error:", cloudinaryErr);
+      if (req.file) {
+        await cleanupUploadedCategoryFile(req.file);
       }
       return res.render("admin/categories/add", {
         error: "At least one category variant is required",
@@ -123,7 +118,7 @@ const addCategory = async (req, res) => {
     };
 
     categoryData.image = {
-      url: req.file.path,
+      url: `/uploads/categories/${req.file.filename}`,
       public_id: req.file.filename,
     };
 
@@ -133,11 +128,7 @@ const addCategory = async (req, res) => {
   } catch (error) {
     console.log(error);
     if (req.file) {
-      try {
-        await cloudinary.uploader.destroy(req.file.filename);
-      } catch (cloudinaryErr) {
-        console.error("Cloudinary cleanup error:", cloudinaryErr);
-      }
+      await cleanupUploadedCategoryFile(req.file);
     }
     res.redirect("/admin/categories?error=Failed to add category");
   }
@@ -193,10 +184,14 @@ const loadEditCategory = async (req, res) => {
 };
 
 const editCategory = async (req, res) => {
+  let categorySaved = false;
   try {
     const category = await Category.findById(req.params.id);
 
     if (!category) {
+      if (req.file) {
+        await cleanupUploadedCategoryFile(req.file);
+      }
       return res.redirect("/admin/categories?error=Category not found");
     }
 
@@ -210,11 +205,7 @@ const editCategory = async (req, res) => {
 
     if (existingCategory) {
       if (req.file) {
-        try {
-          await cloudinary.uploader.destroy(req.file.filename);
-        } catch (cloudinaryErr) {
-          console.error("Cloudinary cleanup error:", cloudinaryErr);
-        }
+        await cleanupUploadedCategoryFile(req.file);
       }
       if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
         return res.status(400).json({ success: false, error: "A category with this name already exists" });
@@ -229,11 +220,7 @@ const editCategory = async (req, res) => {
       const featuredCount = await Category.countDocuments({ isFeatured: true });
       if (featuredCount >= 5) {
         if (req.file) {
-          try {
-            await cloudinary.uploader.destroy(req.file.filename);
-          } catch (cloudinaryErr) {
-            console.error("Cloudinary cleanup error:", cloudinaryErr);
-          }
+          await cleanupUploadedCategoryFile(req.file);
         }
         if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
           return res.status(400).json({ success: false, error: "Cannot feature more than 5 categories" });
@@ -270,28 +257,37 @@ const editCategory = async (req, res) => {
     category.isListed = isListed === "on";
     category.variants = variants;
 
+    const oldImage = category.image
+      ? { url: category.image.url, public_id: category.image.public_id }
+      : null;
+    let shouldDeleteOldLocalImage = false;
+
     // Handle image: new upload replaces old
     if (req.file) {
-      // Delete old image from Cloudinary if it exists
-      if (category.image && category.image.public_id) {
-        await cloudinary.uploader.destroy(category.image.public_id);
-      }
       category.image = {
-        url: req.file.path,
+        url: `/uploads/categories/${req.file.filename}`,
         public_id: req.file.filename,
       };
-    } else if (removeImage === "true") {
-      // User removed the image without uploading a new one
-      if (category.image && category.image.public_id) {
-        await cloudinary.uploader.destroy(category.image.public_id);
+      if (oldImage && oldImage.url && oldImage.url.startsWith("/uploads/categories/")) {
+        shouldDeleteOldLocalImage = true;
       }
+    } else if (removeImage === "true") {
       category.image = { url: "", public_id: "" };
+      if (oldImage && oldImage.url && oldImage.url.startsWith("/uploads/categories/")) {
+        shouldDeleteOldLocalImage = true;
+      }
     }
 
     await category.save();
+    categorySaved = true;
 
     if (!category.isListed) {
       await Product.updateMany({ category: category._id }, { isListed: false });
+    }
+
+    // After all required database operations succeed, delete old local image if applicable
+    if (shouldDeleteOldLocalImage && oldImage && oldImage.public_id) {
+      await deleteCategoryImageFile(oldImage.public_id);
     }
 
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
@@ -300,6 +296,9 @@ const editCategory = async (req, res) => {
     res.redirect("/admin/categories?success=Category updated successfully");
   } catch (error) {
     console.log(error);
+    if (req.file && !categorySaved) {
+      await cleanupUploadedCategoryFile(req.file);
+    }
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       return res.status(500).json({ success: false, error: "Failed to update category" });
     }
@@ -315,11 +314,20 @@ const deleteCategory = async (req, res) => {
       return res.redirect("/admin/categories?error=Category not found");
     }
 
-    if (category.image && category.image.public_id) {
-      await cloudinary.uploader.destroy(category.image.public_id);
-    }
+    const imageToDelete = category.image
+      ? { url: category.image.url, public_id: category.image.public_id }
+      : null;
 
+    // Delete category from MongoDB first
     await Category.findByIdAndDelete(req.params.id);
+
+    // After successful database deletion, delete local image file if it is a local image
+    if (imageToDelete && imageToDelete.url && imageToDelete.url.startsWith("/uploads/categories/")) {
+      if (imageToDelete.public_id) {
+        await deleteCategoryImageFile(imageToDelete.public_id);
+      }
+    }
+    // If it is a legacy Cloudinary image, DO NOT call Cloudinary destroy!
 
     res.redirect("/admin/categories?success=Category deleted successfully");
   } catch (error) {
