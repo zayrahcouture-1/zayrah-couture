@@ -27,13 +27,24 @@ const storage = multer.diskStorage({
   },
 
   filename: function (req, file, cb) {
-    const extension = path.extname(file.originalname).toLowerCase();
+  const extensionByMimeType = {
+    "image/jpeg": ".jpg",
+    "image/jpg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+  };
 
-    const filename =
-      `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${extension}`;
+  const extension = extensionByMimeType[file.mimetype];
 
-    cb(null, filename);
-  },
+  if (!extension) {
+    return cb(new Error("Unsupported image type"));
+  }
+
+  const filename =
+    `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${extension}`;
+
+  cb(null, filename);
+},
 });
 
 const fileFilter = (req, file, cb) => {
