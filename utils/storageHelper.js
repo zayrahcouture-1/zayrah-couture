@@ -4,6 +4,7 @@ const fs = require("fs").promises;
 const PRODUCTS_DIR = path.resolve(__dirname, "..", "uploads", "products");
 const CATEGORIES_DIR = path.resolve(__dirname, "..", "uploads", "categories");
 const HERO_DIR = path.resolve(__dirname, "..", "uploads", "hero");
+const INSTAGRAM_DIR = path.resolve(__dirname, "..", "uploads", "instagram");
 
 const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 // Matches generated multer diskStorage filename: <timestamp>-<16 hex chars>.<ext>
@@ -46,6 +47,8 @@ const extractSafeLocalFilename = (filenameOrPath, allowedPrefix = null) => {
     trimmed = trimmed.slice("/uploads/categories/".length);
   } else if (trimmed.startsWith("/uploads/hero/")) {
     trimmed = trimmed.slice("/uploads/hero/".length);
+  } else if (trimmed.startsWith("/uploads/instagram/")) {
+    trimmed = trimmed.slice("/uploads/instagram/".length);
   }
 
   // After stripping the prefix, there must be NO path separators or directory traversal
@@ -246,6 +249,67 @@ const cleanupUploadedHeroFile = async (file) => {
   }
 };
 
+/**
+ * Safely deletes an instagram image file from uploads/instagram/
+ * Strictly prevents path traversal and safely ignores missing files or non-local IDs (e.g. legacy Cloudinary).
+ *
+ * @param {string} filenameOrPublicId - The filename or public_id stored in the database
+ * @returns {Promise<boolean>} True if file was deleted, false otherwise
+ */
+const deleteInstagramImageFile = async (filenameOrPublicId) => {
+  const safeFilename = extractSafeLocalFilename(
+    filenameOrPublicId,
+    "/uploads/instagram/"
+  );
+  if (!safeFilename) {
+    return false;
+  }
+
+  const targetPath = path.resolve(INSTAGRAM_DIR, safeFilename);
+
+  // Security check: ensure path belongs strictly inside uploads/instagram/
+  if (!targetPath.startsWith(INSTAGRAM_DIR + path.sep)) {
+    console.warn(
+      `[Security Warning] Blocked attempt to delete file outside instagram uploads directory: ${targetPath}`
+    );
+    return false;
+  }
+
+  try {
+    await fs.unlink(targetPath);
+    return true;
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      // File does not exist locally (e.g. already deleted or legacy Cloudinary image)
+      return false;
+    }
+    console.error(
+      `Failed to delete instagram image file (${targetPath}):`,
+      err
+    );
+    return false;
+  }
+};
+
+/**
+ * Safely cleans up a newly uploaded file from multer for an instagram image
+ *
+ * @param {Express.Multer.File} file - Multer file object
+ * @returns {Promise<void>}
+ */
+const cleanupUploadedInstagramFile = async (file) => {
+  if (!file) return;
+  try {
+    const filename =
+      file.filename || (file.path ? path.basename(file.path) : null);
+    if (filename) {
+      await deleteInstagramImageFile(filename);
+    }
+  } catch (err) {
+    console.error("Error during instagram uploaded file cleanup:", err);
+  }
+};
+
 module.exports = {
   deleteProductImageFile,
   cleanupUploadedFiles,
@@ -253,8 +317,11 @@ module.exports = {
   cleanupUploadedCategoryFile,
   deleteHeroImageFile,
   cleanupUploadedHeroFile,
+  deleteInstagramImageFile,
+  cleanupUploadedInstagramFile,
   extractSafeLocalFilename,
   PRODUCTS_DIR,
   CATEGORIES_DIR,
   HERO_DIR,
+  INSTAGRAM_DIR,
 };

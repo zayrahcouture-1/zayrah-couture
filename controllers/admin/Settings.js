@@ -1,8 +1,10 @@
 const Settings = require("../../models/Settings");
-const cloudinary = require("../../config/cloudinary");
+
 const {
   deleteHeroImageFile,
   cleanupUploadedHeroFile,
+  deleteInstagramImageFile,
+  cleanupUploadedInstagramFile,
 } = require("../../utils/storageHelper");
 
 const loadSettings = async (req, res) => {
@@ -81,6 +83,9 @@ const updateSettings = async (req, res) => {
       }
     }
 
+    // Track old local Instagram images to delete after successful save
+    const oldLocalInstagramImagesToDelete = [];
+
     // Process Instagram Posts
     const instagramPosts = [];
     const defaultMocks = [
@@ -123,14 +128,16 @@ const updateSettings = async (req, res) => {
       
       if (req.files && req.files[`instagramPostImage${i}`] && req.files[`instagramPostImage${i}`][0]) {
         const file = req.files[`instagramPostImage${i}`][0];
-        if (public_id) {
-          try {
-            await cloudinary.uploader.destroy(public_id);
-          } catch (err) {
-            console.error(`Failed to delete instagram post ${i} image from Cloudinary:`, err);
+
+        // If old image was local, mark for post-save deletion
+        if (currentPost.image && typeof currentPost.image === "string" && currentPost.image.startsWith("/uploads/instagram/")) {
+          if (currentPost.public_id) {
+            oldLocalInstagramImagesToDelete.push(currentPost.public_id);
           }
         }
-        image = file.path;
+        // If old image was legacy Cloudinary, leave it untouched in Cloudinary
+
+        image = `/uploads/instagram/${file.filename}`;
         public_id = file.filename;
       }
       
@@ -149,11 +156,16 @@ const updateSettings = async (req, res) => {
       await deleteHeroImageFile(oldHeroSecondary.public_id);
     }
 
+    // After successful database save, delete old local Instagram images if applicable
+    for (const oldPublicId of oldLocalInstagramImagesToDelete) {
+      await deleteInstagramImageFile(oldPublicId);
+    }
+
     res.redirect("/admin/settings?success=Settings updated successfully");
   } catch (error) {
     console.log(error);
     if (req.files) {
-      // ONLY clean up newly uploaded local Hero files if settings was NOT saved yet
+      // ONLY clean up newly uploaded local files if settings was NOT saved yet
       if (!settingsSaved) {
         if (req.files["heroImagePrimary"] && req.files["heroImagePrimary"][0]) {
           await cleanupUploadedHeroFile(req.files["heroImagePrimary"][0]);
@@ -161,15 +173,9 @@ const updateSettings = async (req, res) => {
         if (req.files["heroImageSecondary"] && req.files["heroImageSecondary"][0]) {
           await cleanupUploadedHeroFile(req.files["heroImageSecondary"][0]);
         }
-      }
-
-      // Instagram cleanup remains on Cloudinary if settings was NOT saved
-      if (!settingsSaved) {
         for (let i = 0; i < 4; i++) {
           if (req.files[`instagramPostImage${i}`] && req.files[`instagramPostImage${i}`][0]) {
-            try {
-              await cloudinary.uploader.destroy(req.files[`instagramPostImage${i}`][0].filename);
-            } catch (err) {}
+            await cleanupUploadedInstagramFile(req.files[`instagramPostImage${i}`][0]);
           }
         }
       }
