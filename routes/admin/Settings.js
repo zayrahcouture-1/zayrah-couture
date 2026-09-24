@@ -4,10 +4,12 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../../config/cloudinary");
 
+const localStorage = require("../../config/storage");
+
 const settingsController = require("../../controllers/admin/Settings.js");
 const isAdmin = require("../../middleware/Auth.js");
 
-const storage = new CloudinaryStorage({
+const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "zayrah/settings",
@@ -15,7 +17,34 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage });
+const hybridStorage = {
+  _handleFile(req, file, cb) {
+    if (
+      file.fieldname === "heroImagePrimary" ||
+      file.fieldname === "heroImageSecondary"
+    ) {
+      localStorage.storage._handleFile(req, file, cb);
+    } else {
+      cloudinaryStorage._handleFile(req, file, cb);
+    }
+  },
+  _removeFile(req, file, cb) {
+    if (
+      file.fieldname === "heroImagePrimary" ||
+      file.fieldname === "heroImageSecondary"
+    ) {
+      localStorage.storage._removeFile(req, file, cb);
+    } else {
+      cloudinaryStorage._removeFile(req, file, cb);
+    }
+  },
+};
+
+const upload = multer({
+  storage: hybridStorage,
+  fileFilter: localStorage.fileFilter,
+  limits: localStorage.limits,
+});
 
 router.get(
   "/settings",

@@ -3,6 +3,7 @@ const fs = require("fs").promises;
 
 const PRODUCTS_DIR = path.resolve(__dirname, "..", "uploads", "products");
 const CATEGORIES_DIR = path.resolve(__dirname, "..", "uploads", "categories");
+const HERO_DIR = path.resolve(__dirname, "..", "uploads", "hero");
 
 const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 // Matches generated multer diskStorage filename: <timestamp>-<16 hex chars>.<ext>
@@ -43,6 +44,8 @@ const extractSafeLocalFilename = (filenameOrPath, allowedPrefix = null) => {
     trimmed = trimmed.slice("/uploads/products/".length);
   } else if (trimmed.startsWith("/uploads/categories/")) {
     trimmed = trimmed.slice("/uploads/categories/".length);
+  } else if (trimmed.startsWith("/uploads/hero/")) {
+    trimmed = trimmed.slice("/uploads/hero/".length);
   }
 
   // After stripping the prefix, there must be NO path separators or directory traversal
@@ -185,12 +188,73 @@ const cleanupUploadedCategoryFile = async (file) => {
   }
 };
 
+/**
+ * Safely deletes a hero image file from uploads/hero/
+ * Strictly prevents path traversal and safely ignores missing files or non-local IDs (e.g. legacy Cloudinary).
+ *
+ * @param {string} filenameOrPublicId - The filename or public_id stored in the database
+ * @returns {Promise<boolean>} True if file was deleted, false otherwise
+ */
+const deleteHeroImageFile = async (filenameOrPublicId) => {
+  const safeFilename = extractSafeLocalFilename(
+    filenameOrPublicId,
+    "/uploads/hero/"
+  );
+  if (!safeFilename) {
+    return false;
+  }
+
+  const targetPath = path.resolve(HERO_DIR, safeFilename);
+
+  // Security check: ensure path belongs strictly inside uploads/hero/
+  if (!targetPath.startsWith(HERO_DIR + path.sep)) {
+    console.warn(
+      `[Security Warning] Blocked attempt to delete file outside hero uploads directory: ${targetPath}`
+    );
+    return false;
+  }
+
+  try {
+    await fs.unlink(targetPath);
+    return true;
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      // File does not exist locally (e.g. already deleted or legacy Cloudinary image)
+      return false;
+    }
+    console.error(`Failed to delete hero image file (${targetPath}):`, err);
+    return false;
+  }
+};
+
+/**
+ * Safely cleans up a newly uploaded file from multer for a hero image
+ *
+ * @param {Express.Multer.File} file - Multer file object
+ * @returns {Promise<void>}
+ */
+const cleanupUploadedHeroFile = async (file) => {
+  if (!file) return;
+  try {
+    const filename =
+      file.filename || (file.path ? path.basename(file.path) : null);
+    if (filename) {
+      await deleteHeroImageFile(filename);
+    }
+  } catch (err) {
+    console.error("Error during hero uploaded file cleanup:", err);
+  }
+};
+
 module.exports = {
   deleteProductImageFile,
   cleanupUploadedFiles,
   deleteCategoryImageFile,
   cleanupUploadedCategoryFile,
+  deleteHeroImageFile,
+  cleanupUploadedHeroFile,
   extractSafeLocalFilename,
   PRODUCTS_DIR,
   CATEGORIES_DIR,
+  HERO_DIR,
 };

@@ -1,5 +1,9 @@
 const Settings = require("../../models/Settings");
 const cloudinary = require("../../config/cloudinary");
+const {
+  deleteHeroImageFile,
+  cleanupUploadedHeroFile,
+} = require("../../utils/storageHelper");
 
 const loadSettings = async (req, res) => {
   try {
@@ -20,6 +24,7 @@ const loadSettings = async (req, res) => {
 };
 
 const updateSettings = async (req, res) => {
+  let settingsSaved = false;
   try {
     let settings = await Settings.findOne();
     if (!settings) {
@@ -40,36 +45,39 @@ const updateSettings = async (req, res) => {
     settings.shippingPolicy = shippingPolicy ? shippingPolicy.trim() : "";
     settings.returnPolicy = returnPolicy ? returnPolicy.trim() : "";
 
-    // Check if new images were uploaded
+    // Track old hero images and flags for post-save local file deletion
+    const oldHeroPrimary = settings.heroImagePrimary
+      ? { url: settings.heroImagePrimary.url, public_id: settings.heroImagePrimary.public_id }
+      : null;
+    let shouldDeleteOldPrimaryLocal = false;
+
+    const oldHeroSecondary = settings.heroImageSecondary
+      ? { url: settings.heroImageSecondary.url, public_id: settings.heroImageSecondary.public_id }
+      : null;
+    let shouldDeleteOldSecondaryLocal = false;
+
+    // Check if new hero images were uploaded
     if (req.files) {
       if (req.files["heroImagePrimary"] && req.files["heroImagePrimary"][0]) {
         const file = req.files["heroImagePrimary"][0];
-        if (settings.heroImagePrimary && settings.heroImagePrimary.public_id) {
-          try {
-            await cloudinary.uploader.destroy(settings.heroImagePrimary.public_id);
-          } catch (err) {
-            console.error("Failed to delete primary hero image from Cloudinary:", err);
-          }
-        }
         settings.heroImagePrimary = {
-          url: file.path,
+          url: `/uploads/hero/${file.filename}`,
           public_id: file.filename,
         };
+        if (oldHeroPrimary && oldHeroPrimary.url && oldHeroPrimary.url.startsWith("/uploads/hero/")) {
+          shouldDeleteOldPrimaryLocal = true;
+        }
       }
 
       if (req.files["heroImageSecondary"] && req.files["heroImageSecondary"][0]) {
         const file = req.files["heroImageSecondary"][0];
-        if (settings.heroImageSecondary && settings.heroImageSecondary.public_id) {
-          try {
-            await cloudinary.uploader.destroy(settings.heroImageSecondary.public_id);
-          } catch (err) {
-            console.error("Failed to delete secondary hero image from Cloudinary:", err);
-          }
-        }
         settings.heroImageSecondary = {
-          url: file.path,
+          url: `/uploads/hero/${file.filename}`,
           public_id: file.filename,
         };
+        if (oldHeroSecondary && oldHeroSecondary.url && oldHeroSecondary.url.startsWith("/uploads/hero/")) {
+          shouldDeleteOldSecondaryLocal = true;
+        }
       }
     }
 
@@ -131,25 +139,38 @@ const updateSettings = async (req, res) => {
     settings.instagramPosts = instagramPosts;
 
     await settings.save();
+    settingsSaved = true;
+
+    // After successful database save, delete old local Hero images if applicable
+    if (shouldDeleteOldPrimaryLocal && oldHeroPrimary && oldHeroPrimary.public_id) {
+      await deleteHeroImageFile(oldHeroPrimary.public_id);
+    }
+    if (shouldDeleteOldSecondaryLocal && oldHeroSecondary && oldHeroSecondary.public_id) {
+      await deleteHeroImageFile(oldHeroSecondary.public_id);
+    }
+
     res.redirect("/admin/settings?success=Settings updated successfully");
   } catch (error) {
     console.log(error);
     if (req.files) {
-      if (req.files["heroImagePrimary"] && req.files["heroImagePrimary"][0]) {
-        try {
-          await cloudinary.uploader.destroy(req.files["heroImagePrimary"][0].filename);
-        } catch (err) {}
+      // ONLY clean up newly uploaded local Hero files if settings was NOT saved yet
+      if (!settingsSaved) {
+        if (req.files["heroImagePrimary"] && req.files["heroImagePrimary"][0]) {
+          await cleanupUploadedHeroFile(req.files["heroImagePrimary"][0]);
+        }
+        if (req.files["heroImageSecondary"] && req.files["heroImageSecondary"][0]) {
+          await cleanupUploadedHeroFile(req.files["heroImageSecondary"][0]);
+        }
       }
-      if (req.files["heroImageSecondary"] && req.files["heroImageSecondary"][0]) {
-        try {
-          await cloudinary.uploader.destroy(req.files["heroImageSecondary"][0].filename);
-        } catch (err) {}
-      }
-      for (let i = 0; i < 4; i++) {
-        if (req.files[`instagramPostImage${i}`] && req.files[`instagramPostImage${i}`][0]) {
-          try {
-            await cloudinary.uploader.destroy(req.files[`instagramPostImage${i}`][0].filename);
-          } catch (err) {}
+
+      // Instagram cleanup remains on Cloudinary if settings was NOT saved
+      if (!settingsSaved) {
+        for (let i = 0; i < 4; i++) {
+          if (req.files[`instagramPostImage${i}`] && req.files[`instagramPostImage${i}`][0]) {
+            try {
+              await cloudinary.uploader.destroy(req.files[`instagramPostImage${i}`][0].filename);
+            } catch (err) {}
+          }
         }
       }
     }
