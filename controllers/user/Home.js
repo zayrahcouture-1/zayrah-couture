@@ -428,7 +428,7 @@ exports.getHome = async (req, res) => {
 
     if (dbProducts.length >= 4) {
       const formatted = dbProducts.map(formatProduct);
-      
+
       if (dbFeatured.length > 0) {
         featuredProducts = dbFeatured.map(formatProduct);
       } else {
@@ -531,10 +531,10 @@ exports.getShop = async (req, res) => {
     const categories =
       dbCategories.length > 0
         ? dbCategories.map((cat) => ({
-            name: cat.name,
-            slug: cat.slug,
-            description: cat.description,
-          }))
+          name: cat.name,
+          slug: cat.slug,
+          description: cat.description,
+        }))
         : shopCategories;
 
     const searchCategories = dbCategories.length > 0
@@ -715,19 +715,49 @@ exports.getCheckout = async (req, res) => {
       storeSettings = dbSettings;
     }
 
-    const { slug, variants } = req.query;
-    if (!slug) {
+    // const { slug, variants } = req.query;
+    // if (!slug) {
+    //   return res.redirect("/shop?error=Invalid checkout details");
+    // }
+
+    // Find the product
+    // const cleanSku = slug.startsWith("ZC-") ? slug.replace("ZC-", "") : slug;
+    // const product = await Product.findOne({
+    //   $or: [
+    //     { sku: cleanSku },
+    //     { slug: slug }
+    //   ]
+    // }).populate("category").lean();
+
+    const { slug: rawSlug, variants } = req.query;
+
+    if (!rawSlug || typeof rawSlug !== "string") {
+      return res.redirect("/shop?error=Invalid checkout details");
+    }
+
+    // Normalize a potentially double-encoded slug.
+    let slug = rawSlug;
+
+    try {
+      for (let i = 0; i < 2 && /%[0-9a-f]{2}/i.test(slug); i++) {
+        slug = decodeURIComponent(slug);
+      }
+    } catch (err) {
       return res.redirect("/shop?error=Invalid checkout details");
     }
 
     // Find the product
-    const cleanSku = slug.startsWith("ZC-") ? slug.replace("ZC-", "") : slug;
+    const cleanSku = slug.startsWith("ZC-")
+      ? slug.replace("ZC-", "")
+      : slug;
+
     const product = await Product.findOne({
       $or: [
         { sku: cleanSku },
-        { slug: slug }
+        { slug }
       ]
     }).populate("category").lean();
+
     if (!product) {
       return res.redirect("/shop?error=Product not found");
     }
@@ -745,7 +775,7 @@ exports.getCheckout = async (req, res) => {
     // Match the selections to retrieve the dynamic pricing
     let checkoutPrice = product.price;
     let checkoutDiscountPrice = product.salePrice || 0;
-    
+
     if (product.combinations && product.combinations.length > 0) {
       const matched = product.combinations.find(c => {
         const keys = Object.keys(c.attributes || {});
